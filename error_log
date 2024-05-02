@@ -1,0 +1,320 @@
+[13-Jun-2023 17:31:09 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../symfony/var-dumper/Resources/functions/dump.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:31:09 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../symfony/var-dumper/Resources/functions/dump.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:31:55 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../symfony/var-dumper/Resources/functions/dump.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:31:55 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../symfony/var-dumper/Resources/functions/dump.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:45:21 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:45:21 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:45:25 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:45:25 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:45:58 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:45:58 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:45:59 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:45:59 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:46:03 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:46:03 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:46:06 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:46:06 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:47:55 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:47:55 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:52:14 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 17:52:14 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 18:00:14 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 18:00:14 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/artisan(18): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 18:00:22 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 18:00:22 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/artisan(18): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 18:00:26 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[13-Jun-2023 18:00:26 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 01:52:01 UTC] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 01:52:01 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:53:51 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:53:51 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:54:22 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:54:22 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:54:26 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:54:26 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:28 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:28 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/artisan(18): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:31 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:31 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:32 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:32 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:48 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:48 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:55 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:55 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:58 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:55:58 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:08 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:08 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:09 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:09 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:10 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:10 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:16 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:16 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/artisan(18): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:20 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:58:20 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:59:49 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:59:49 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/artisan(18): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:59:51 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:59:51 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:59:52 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 08:59:52 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 09:09:58 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 09:09:58 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 09:10:03 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 09:10:03 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 09:15:06 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 09:15:06 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 09:21:09 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 09:21:09 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:28:32 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:28:32 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:30:55 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:30:55 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:32:55 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:32:55 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:32:57 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:32:57 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:33:56 Asia/Jakarta] PHP Warning:  require(/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php): Failed to open stream: No such file or directory in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
+[14-Jun-2023 13:33:56 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required '/home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/../../app/Helper.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php(45): {closure}()
+#1 /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/autoload.php(25): ComposerAutoloaderInit77e8e48bc8f2314148b442cb9c72392c::getLoader()
+#2 /home/preb2221/public_html/kitabuatin.com/project/satukasir/index.php(34): require('/home/preb2221/...')
+#3 {main}
+  thrown in /home/preb2221/public_html/kitabuatin.com/project/satukasir/vendor/composer/autoload_real.php on line 41
