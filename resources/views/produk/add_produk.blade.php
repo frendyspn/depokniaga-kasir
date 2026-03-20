@@ -96,22 +96,51 @@
                         </div>
 
                         <div class="form-group boxed">
-                            <div class="input-wrapper">
-                                <label class="label" for="harga_jual">Harga Jual</label>
-                                <input type="number" class="form-control" id="harga_jual" name="harga_jual">
-                                <i class="clear-input">
-                                    <ion-icon name="close-circle" role="img" class="md hydrated" aria-label="close circle"></ion-icon>
-                                </i>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-wrapper">
+                                        <label class="label" for="harga_jual">Harga Ecer</label>
+                                        <input type="number" class="form-control" id="harga_jual" name="harga_jual">
+                                        <i class="clear-input">
+                                            <ion-icon name="close-circle" role="img" class="md hydrated" aria-label="close circle"></ion-icon>
+                                        </i>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                     <div class="input-wrapper">
+                                        <label class="label" for="harga_konsumen_minimal_order">Minimal Beli</label>
+                                        <input type="number" class="form-control" id="harga_konsumen_minimal_order" name="harga_konsumen_minimal_order">
+                                        <i class="clear-input">
+                                            <ion-icon name="close-circle" role="img" class="md hydrated" aria-label="close circle"></ion-icon>
+                                        </i>
+                                    </div>
+                                </div>
                             </div>
+                            
                         </div>
 
-                        <div class="form-group boxed d-none">
-                            <div class="input-wrapper">
-                                <label class="label" for="harga_reseller">Harga Reseller</label>
-                                <input type="number" class="form-control" id="harga_reseller" name="harga_reseller">
-                                <i class="clear-input">
-                                    <ion-icon name="close-circle" role="img" class="md hydrated" aria-label="close circle"></ion-icon>
-                                </i>
+                        <div class="form-group boxed">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-wrapper">
+                                        <label class="label" for="harga_reseller">Harga Reseller</label>
+                                        <input type="number" class="form-control" id="harga_reseller" name="harga_reseller">
+                                        <i class="clear-input">
+                                            <ion-icon name="close-circle" role="img" class="md hydrated" aria-label="close circle"></ion-icon>
+                                        </i>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                     <div class="input-wrapper">
+                                        <label class="label" for="harga_reseller_minimal_order">Minimal Beli</label>
+                                        <input type="number" class="form-control" id="harga_reseller_minimal_order" name="harga_reseller_minimal_order">
+                                        <i class="clear-input">
+                                            <ion-icon name="close-circle" role="img" class="md hydrated" aria-label="close circle"></ion-icon>
+                                        </i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -125,7 +154,7 @@
                             </div>
                         </div>
                         
-                        <div class="form-group boxed">
+                        <div class="form-group boxed d-none">
                             <div class="input-wrapper">
                                 <label class="label" for="harga_platform">Harga Platform (%)</label>
                                 <input type="number" class="form-control" id="harga_platform" name="harga_platform" >
@@ -210,7 +239,7 @@
 
             
 
-            <div class="col-md-12">
+            <div class="col-md-12 d-none">
                 <div class="section-title">Variasi Produk</div>
                 <div class="card">
                     <div class="card-body">

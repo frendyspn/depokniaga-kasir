@@ -23,27 +23,57 @@ class PosController extends Controller
         $data['header'] = 'goback';
         $data['menu'] = '';
 
-        $response = Http::attach('token',Session::get('token')) 
-        ->attach('id_toko',$this->getDataToko()->id_reseller)
-        ->withHeaders([ 
-            'Authorization'=> api_token(),
-        ]) 
-        ->post(api_url().'api/v1/list_barang'); 
-        // dd($response->getStatusCode());
+        // $response = Http::attach('token',Session::get('token')) 
+        // ->attach('id_toko',$this->getDataToko()->id_reseller)
+        // ->withHeaders([ 
+        //     'Authorization'=> api_token(),
+        // ]) 
+        // ->post(api_url().'api/v1/list_barang'); 
+
+        $id_toko = $this->getDataToko()->id_reseller;
+
+        $data['dtBarang'] = DB::table('rb_produk as a')
+        // ->select('a.id_produk', 'a.nama_produk', 'a.harga_reseller', 'a.harga_konsumen', 'a.harga_premium','a.harga_beli', 'a.berat','a.gambar','a.satuan', 'b.nama_kategori')
+        ->select('a.*', 'b.nama_kategori', 'c.diskon')
+        ->leftJoin('rb_kategori_produk as b', 'b.id_kategori_produk', 'a.id_kategori_produk')
+        ->leftJoin('rb_produk_diskon as c', 'c.id_produk', 'a.id_produk')
+        ->where('a.id_reseller', $id_toko)
+        ->where('a.aktif', 'Y')->get();
+        // return array_column(json_decode($data['dtBarang']), 'id_produk');
+
+        $data['dtVariasi'] = DB::table('rb_produk_variasi as a')
+        ->select('a.*')
+        ->whereIn('a.id_produk', array_column(json_decode($data['dtBarang']), 'id_produk'))->orderBy('a.id_produk')->get();
+
+        $data['dtKategori'] = DB::table('rb_kategori_produk as a')
+        ->select('a.*')
+        ->orderBy('a.nama_kategori')->get();
+
+        $data['dtTerlaris'] = DB::table('rb_penjualan_detail as b')
+        ->select('a.id_produk', 'a.nama_produk', 'a.harga_reseller', 'a.harga_konsumen', 'a.harga_premium','a.harga_beli', 'a.berat','a.gambar', 'a.id_kategori_produk', 'a.source')
+        ->rightJoin('rb_produk as a', 'a.id_produk', 'b.id_produk')
+        ->where('a.aktif', 'Y')
+        ->where('a.id_reseller', $id_toko)
+        ->groupBy('a.id_produk', 'a.nama_produk', 'a.harga_reseller', 'a.harga_konsumen', 'a.harga_premium','a.harga_beli', 'a.berat','a.gambar', 'a.id_kategori_produk', 'a.source')
+        ->orderBy(DB::Raw('sum(b.jumlah)'), 'DESC')
+        ->get();
+    
 
         // $data['list_barang'] = json_decode($response->body())->dtBarang;
         // $data['list_barang_code'] = $response->getStatusCode();
 
-        if($response->getStatusCode() == '200'){
-            $data['list_kategori'] = json_decode($response->body())->dtKategori;
+        // if($response->getStatusCode() == '200'){
+            $data['list_kategori'] = json_decode($data['dtKategori']);
     
-            Session::put('list_barang', json_decode($response->body())->dtBarang);
-            Session::put('list_variasi', json_decode($response->body())->dtVariasi);
-            Session::put('list_kategori', json_decode($response->body())->dtKategori);
-            Session::put('list_terlaris', json_decode($response->body())->dtTerlaris);
-        } else {
-            $data['list_kategori'] = [];
-        }
+            Session::put('list_barang', json_decode($data['dtBarang']));
+            Session::put('list_variasi', json_decode($data['dtVariasi']));
+            Session::put('list_kategori', json_decode($data['dtKategori']));
+            Session::put('list_terlaris', json_decode($data['dtTerlaris']));
+        // } else {
+        //     $data['list_kategori'] = [];
+        // }
+
+        // dd(Session::get('list_barang'));
 
         return view('pos.pos',$data);
     }
@@ -95,9 +125,9 @@ class PosController extends Controller
                         $arrGambar = explode(';', $list_barang[$i]->gambar);
                         // $tmp .= '<img src="https://satutoko.id/asset/foto_produk/'.$arrGambar[0].'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
                         if ($list_barang[$i]->source == 'POS') {
-                            $tmp .= '<img src="'.asset('images/'.$arrGambar[0]).'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
+                            $tmp .= '<img src="'.env('ADMIN_URL').'asset/foto_produk/'.$arrGambar[0].'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
                         } else {
-                            $tmp .= '<img src="https://satutoko.id/asset/foto_produk/'.$arrGambar[0].'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
+                            $tmp .= '<img src="'.env('ADMIN_URL').'asset/foto_produk/'.$arrGambar[0].'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
                         }
                     }
 
@@ -114,7 +144,7 @@ class PosController extends Controller
 
         }
 
-        $tmp .= '<span>'.__('bahasa.daftar_belanja').'</span>';
+        $tmp .= '<span>Terlaris</span>';
         if (count($list_terlaris) >= 10) {
             $laris_max = 10;
         } elseif (count($list_terlaris) == 0) {
@@ -132,9 +162,9 @@ class PosController extends Controller
                     }else{
                         $arrGambar = explode(';', $list_terlaris[$i]->gambar);
                         if ($list_terlaris[$i]->source == 'POS') {
-                            $tmp .= '<img src="'.asset('images/'.$arrGambar[0]).'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
+                            $tmp .= '<img src="'.env('ADMIN_URL').'asset/foto_produk/'.$arrGambar[0].'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
                         } else {
-                            $tmp .= '<img src="https://satutoko.id/asset/foto_produk/'.$arrGambar[0].'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
+                            $tmp .= '<img src="'.env('ADMIN_URL').'asset/foto_produk/'.$arrGambar[0].'" style="width=83.66px; height:83.66px"  alt="img" class="imaged w-100">';
                         }
                     }
 
@@ -185,7 +215,7 @@ class PosController extends Controller
         if($resellerPaket){
             $paket = $resellerPaket->lable_harga;
         } else {
-            $paket = 'harga_level_newbie';
+            $paket = 'harga_konsumen';
         }
         
         
@@ -211,6 +241,18 @@ class PosController extends Controller
         // echo $dtBarang[$indexNya]->nama_produk;
         // echo json_encode($arrVariasi);return;
         if ($indexNya >= 0) {
+            if ($indexKeranjang !== false && $indexKeranjang >= 0  ) {
+                $qtyTemp = $dtKeranjang[$indexKeranjang]['qty'] + $qtyBeli;
+
+                if ($qtyTemp >= $dtBarang[$indexNya]->harga_konsumen_minimal_order) {
+                    $paket = 'harga_konsumen';
+                }
+
+                if ($qtyTemp >= $dtBarang[$indexNya]->harga_reseller_minimal_order) {
+                    $paket = 'harga_reseller';
+                }
+            }
+
             $nama_produk = $dtBarang[$indexNya]->nama_produk;
             $harga_konsumen = $dtBarang[$indexNya]->$paket; 
             $harga_premium = $dtBarang[$indexNya]->harga_premium;
@@ -244,9 +286,11 @@ class PosController extends Controller
 
             if ($indexKeranjang !== false && $indexKeranjang >= 0  ) {
                 $dtKeranjang[$indexKeranjang]['qty'] = $dtKeranjang[$indexKeranjang]['qty'] + $qtyBeli;
+                $dtKeranjang[$indexKeranjang]['harga_konsumen'] = $harga_konsumen;
             } else {
                 array_push($dtKeranjang, $arrMasukKeranjang);
             }
+            // dd($arrMasukKeranjang);
             Session::put('keranjang', $dtKeranjang);
             http_response_code(200);
             return json_encode($indexNya);
@@ -318,10 +362,10 @@ class PosController extends Controller
             }
             
             $cek_koordinat_konsumen = DB::table('rb_konsumen')->where('id_konsumen', $id_konsumen)->first();
-            if ($cek_koordinat_konsumen->kordinat_lokasi == '') {
-                http_response_code(404);
-                exit(json_encode(['Konsumen Belum Ada Koordinat']));
-            }
+            // if ($cek_koordinat_konsumen->kordinat_lokasi == '') {
+            //     http_response_code(404);
+            //     exit(json_encode(['Konsumen Belum Ada Koordinat']));
+            // }
 
             $token_penjual = Session::get('token');
             $cekPenjualKonsumen = DB::table('rb_konsumen')->where('remember_token', $token_penjual)->first();
@@ -332,17 +376,18 @@ class PosController extends Controller
                 exit(json_encode([__('bahasa.notif_penjual_belum_ada_koordinat')]));
             }
 
-            $response = Http::withHeaders([ 
-                'Accept'=> '*/*', 
-            ]) 
-            ->get('https://api.satutoko.id/api/kurir/v1/hitungJarak/'.trim($cek_koordinat_penjual->kordinat,' ').'/'.trim($cek_koordinat_konsumen->kordinat_lokasi, ' ').'/REGULAR');
+            // $response = Http::withHeaders([ 
+            //     'Accept'=> '*/*', 
+            // ]) 
+            // ->get('https://api.satutoko.id/api/kurir/v1/hitungJarak/'.trim($cek_koordinat_penjual->kordinat,' ').'/'.trim($cek_koordinat_konsumen->kordinat_lokasi, ' ').'/REGULAR');
             
-            if ($response->body() < 0) {
-                http_response_code(404);
-                exit(json_encode(__('bahasa.notif_jarak_terlalu_jauh')));
-            }
+            // if ($response->body() < 0) {
+            //     http_response_code(404);
+            //     exit(json_encode(__('bahasa.notif_jarak_terlalu_jauh')));
+            // }
 
-            $dataPos['pengiriman']['ongkir'] = $response->body();
+            // $dataPos['pengiriman']['ongkir'] = $response->body();
+            $dataPos['pengiriman']['ongkir'] = 7000;
             $dataPos['pengiriman']['kurir'] = 'ongkir_lokal';
             $dataPos['pengiriman']['titik_jemput'] = trim($cek_koordinat_penjual->kordinat,' ');
             $dataPos['pengiriman']['titik_antar'] = trim($cek_koordinat_konsumen->kordinat_lokasi,' ');
@@ -642,6 +687,7 @@ class PosController extends Controller
 
         $dtKeranjang = Session::get('keranjang');
         $dtPos = Session::get('POS');
+        // dd($dtPos);
 
         $subTotal = 0;
         for ($i=0; $i < count($dtKeranjang); $i++) { 
@@ -662,7 +708,7 @@ class PosController extends Controller
         if ($dtPos['pengiriman']['kurir'] == 'tanpa_ongkir') {
             // $insertMaster['proses'] = '4';
         }else {
-            $insertMaster['proses'] = '2';
+            $insertMaster['proses'] = '1';
         } 
 
         // CREDIT
@@ -673,33 +719,39 @@ class PosController extends Controller
             }
             
         }
-        $id = DB::table('rb_penjualan')->insertGetId($insertMaster);
 
-        for ($k=0; $k < count($dtKeranjang); $k++) { 
-            $insertDetail['id_penjualan'] = $id;
-            $insertDetail['id_produk'] = $dtKeranjang[$k]['id_produk'];
-            $insertDetail['jumlah'] = $dtKeranjang[$k]['qty'];
-            $insertDetail['diskon'] = $dtKeranjang[$k]['diskon'];
-            $insertDetail['harga_jual'] = $dtKeranjang[$k]['harga_konsumen'];
-            $insertDetail['satuan'] = $dtKeranjang[$k]['satuan'];
-            $cekinsert = DB::table('rb_penjualan_detail')->insert($insertDetail);
+        try {
+            DB::beginTransaction();
+            $id = DB::table('rb_penjualan')->insertGetId($insertMaster);
+
+            for ($k=0; $k < count($dtKeranjang); $k++) { 
+                $insertDetail['id_penjualan'] = $id;
+                $insertDetail['id_produk'] = $dtKeranjang[$k]['id_produk'];
+                $insertDetail['jumlah'] = $dtKeranjang[$k]['qty'];
+                $insertDetail['diskon'] = $dtKeranjang[$k]['diskon'];
+                $insertDetail['harga_jual'] = $dtKeranjang[$k]['harga_konsumen'];
+                $insertDetail['satuan'] = $dtKeranjang[$k]['satuan'];
+                $cekinsert = DB::table('rb_penjualan_detail')->insert($insertDetail);
+            }
+            
+            if ($dtPos['pengiriman']['kurir'] == 'tanpa_ongkir') {
+                // DB::statement('CALL SP_UPDATE_PENJUALAN_SUKSES(?)', [$id]);
+            }elseif ($dtPos['pengiriman']['kurir'] == 'ongkir_lokal') {
+                $kirim = $this->orderKurir($dtPos['pengiriman']['titik_jemput'], $dtPos['pengiriman']['titik_antar'], 'REGULAR', $id, 'POS');
+
+            }
+            dd($kirim);
+            DB::commit();
+            // DB::rollback();
+
+            // return $cekinsert;
+            exit(json_encode(['Message' => 'Transaksi Sukses']));
+        } catch (\Exception $e) {
+            DB::rollback();
+            http_response_code(500);
+            exit(json_encode(['Message' => 'Transaksi Gagal: '.$e->getMessage()]));
         }
         
-        if ($dtPos['pengiriman']['kurir'] == 'tanpa_ongkir') {
-            DB::statement('CALL SP_UPDATE_PENJUALAN_SUKSES(?)', [$id]);
-        }elseif ($dtPos['pengiriman']['kurir'] == 'ongkir_lokal') {
-            $response = Http::attach('titik_jemput',$dtPos['pengiriman']['titik_jemput'])
-                ->attach('titik_tujuan',$dtPos['pengiriman']['titik_antar'])
-                ->attach('service','REGULAR')
-                ->attach('id_penjualan',$id)
-                ->attach('source','POS') 
-                ->withHeaders([ 
-                    'Accept'=> '*/*',
-                ]) 
-                ->post(api_url().'api/kurir/v1/orderKurir'); 
-        }
-
-        return $cekinsert;
     }
 
     public function PosFinish(Request $req)
@@ -726,5 +778,73 @@ class PosController extends Controller
         Session::put('POS', $dataPos);
 
         return redirect('/pos');
+    }
+
+
+
+    public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $souce)
+    {
+        // $titik_jemput = $req->titik_jemput;
+        // $titik_tujuan = $req->titik_tujuan;
+        // $service = $req->service;
+        // $id_penjualan = $req->id_penjualan;
+        // $souce = $req->source;
+
+        // if ($titik_jemput == '' || $titik_tujuan == '') {
+        //     http_response_code(404);
+        //     exit(json_encode(['Message' => 'Titik antar dan jemput tidak boleh kosong']));
+        // }
+
+        // if ($titik_jemput == $titik_tujuan) {
+        //     http_response_code(404);
+        //     exit(json_encode(['Message' => 'Titik antar dan jemput tidak boleh sama']));
+        // }
+
+        $tarif = 7000;
+
+        $data['tarif'] = $tarif;
+
+        // dd($data);
+
+        if ($id_penjualan != '' && ($souce == 'POS' || $souce == 'MP')) {
+            $cekPenjualan = DB::table('kurir_order')->where('id_penjualan', $id_penjualan)->where('source', $souce)->whereNotIn('status', ['cancel', 'onprocess'])->get();
+            if (count($cekPenjualan) > 0) {
+                http_response_code(404);
+                exit(json_encode(['Message' => 'Id Penjualan Masih Aktif']));
+            }
+
+            $cekTblPenjualan = DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->first();
+            if (!$cekTblPenjualan) {
+                http_response_code(404);
+                exit(json_encode(['Message' => 'Penjualan Tidak Ada Di Marketplace']));
+            }
+
+            $data['kode_order'] = 'SND-' . time();
+        }
+
+        $data['id_penjualan'] = $id_penjualan;
+        $data['metode_pembayaran'] = 'WALLET';
+        
+        $data['titik_jemput'] = $titik_jemput;
+        $data['titik_antar'] = $titik_tujuan;
+        $data['service'] = $service;
+
+        $data['tanggal_order'] = date('Y-m-d H:i:s');
+        $data['source'] = $souce;
+
+        $insertOrder = DB::table('kurir_order')->insert($data);
+        $id = DB::getPdo()->lastInsertId();
+        
+        if ($insertOrder) {
+            Http::withHeaders([ 
+                        'Accept'=> '*/*',
+                    ]) 
+                    ->get(api_url().'api/notification/new_order/'.$id_penjualan);
+            http_response_code(200);
+            exit(json_encode(['Message' => 'Order Sukses', 'id' => $id]));
+        } else {
+            http_response_code(404);
+            exit(json_encode(['Message' => 'Kesalahan Menyimpan Order']));
+        }
     }
 }

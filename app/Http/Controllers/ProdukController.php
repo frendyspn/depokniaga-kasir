@@ -102,6 +102,16 @@ class ProdukController extends Controller
             http_response_code(400);
             exit(json_encode(['Message' => 'Deskripsi Barang Harus Diisi']));
         }
+        if ($req->harga_reseller > 0) {
+            if ($req->harga_konsumen_minimal_order <= 0) {
+                http_response_code(400);
+                exit(json_encode(['Message' => 'Minimal Order Ecer Harus Diisi']));
+            }
+            if ($req->harga_reseller_minimal_order <= 0) {
+                http_response_code(400);
+                exit(json_encode(['Message' => 'Minimal Order Reseller Harus Diisi']));
+            }
+        }
 
         $allowed_ext= array('image/jpg','image/jpeg','image/png','image/gif');
 
@@ -135,7 +145,7 @@ class ProdukController extends Controller
             }
             
             $imageName = time().'.'.$req->fileuploadInput1->extension();
-            $req->fileuploadInput1->move(public_path('images'), $imageName);
+            $req->fileuploadInput1->move('/var/www/dpb-admin/public/asset/foto_produk', $imageName);
 
             if ($dtFoto != '') {
                 $dtFoto .= $dtFoto.';'.$imageName;
@@ -166,7 +176,7 @@ class ProdukController extends Controller
             }
 
             $imageName = time().'.'.$req->fileuploadInput2->extension();
-            $req->fileuploadInput2->move(public_path('images'), $imageName);
+            $req->fileuploadInput2->move('/var/www/dpb-admin/public/asset/foto_produk', $imageName);
 
             if ($dtFoto != '') {
                 $dtFoto .= $dtFoto.';'.$imageName;
@@ -197,7 +207,7 @@ class ProdukController extends Controller
             }
 
             $imageName = time().'.'.$req->fileuploadInput3->extension();
-            $req->fileuploadInput3->move(public_path('images'), $imageName);
+            $req->fileuploadInput3->move('/var/www/dpb-admin/public/asset/foto_produk', $imageName);
 
             if ($dtFoto != '') {
                 $dtFoto .= $dtFoto.';'.$imageName;
@@ -228,7 +238,7 @@ class ProdukController extends Controller
             }
 
             $imageName = time().'.'.$req->fileuploadInput4->extension();
-            $req->fileuploadInput4->move(public_path('images'), $imageName);
+            $req->fileuploadInput4->move('/var/www/dpb-admin/public/asset/foto_produk', $imageName);
 
             if ($dtFoto != '') {
                 $dtFoto .= $dtFoto.';'.$imageName;
@@ -247,9 +257,11 @@ class ProdukController extends Controller
         $dtHeadInsert['harga_beli'] = $req->harga_beli;
         $dtHeadInsert['harga_reseller'] = ($req->harga_reseller >= 0)?$req->harga_reseller:0;
         $dtHeadInsert['harga_konsumen'] = ($req->harga_jual >= 0)?$req->harga_jual:0;
-        $dtHeadInsert['harga_premium'] = ($req->harga_premium >= 0)?$req->harga_premium:0;
+        $dtHeadInsert['harga_premium'] = (isset($req->harga_premium) && $req->harga_premium >= 0)?$req->harga_premium:0;
         $dtHeadInsert['harga_platform'] = ($req->harga_platform >= 0)?$req->harga_jual-($req->harga_jual-(($req->harga_jual*$req->harga_platform)/100)):0;
         $dtHeadInsert['harga_platform_persen'] = ($req->harga_platform >= 0)?$req->harga_platform:0;
+        $dtHeadInsert['harga_konsumen_minimal_order'] = ($req->harga_konsumen_minimal_order >= 0)?$req->harga_konsumen_minimal_order:0;
+        $dtHeadInsert['harga_reseller_minimal_order'] = ($req->harga_reseller_minimal_order >= 0)?$req->harga_reseller_minimal_order:0;
         // $dtHeadInsert['harga_level_newbie'] = ($req->harga_level_newbie >= 0)?$req->harga_level_newbie:0;
         // $dtHeadInsert['harga_level_pedagang'] = ($req->harga_level_pedagang >= 0)?$req->harga_level_pedagang:0;
         // $dtHeadInsert['harga_level_juragan'] = ($req->harga_level_juragan >= 0)?$req->harga_level_juragan:0;
@@ -257,7 +269,7 @@ class ProdukController extends Controller
         // $dtHeadInsert['harga_level_bos'] = ($req->harga_level_bos >= 0)?$req->harga_level_bos:0;
         $dtHeadInsert['berat'] = $req->berat;
         $dtHeadInsert['username'] = $this->getDataToko()->id_konsumen;
-        $dtHeadInsert['aktif'] = 'D';
+        $dtHeadInsert['aktif'] = 'Y';
         $dtHeadInsert['tag'] = '';
         $dtHeadInsert['minimum'] = '1';
         $dtHeadInsert['sku'] = $req->barcode;
@@ -269,7 +281,6 @@ class ProdukController extends Controller
         $dtHeadInsert['keterangan'] = '-';
         $dtHeadInsert['tentang_produk'] = $req->deskripsi_produk;
 
-        
 
         if ($req->type_variasi) {
             if (count($req->type_variasi) != count($req->penambah_harga_variasi) && count($req->type_variasi) != count($req->variasi)) {
@@ -496,7 +507,7 @@ class ProdukController extends Controller
         $dtHeadInsert['harga_beli'] = $req->harga_beli;
         $dtHeadInsert['harga_reseller'] = ($req->harga_reseller >= 0)?$req->harga_reseller:0;
         $dtHeadInsert['harga_konsumen'] = ($req->harga_jual >= 0)?$req->harga_jual:0;
-        $dtHeadInsert['harga_premium'] = ($req->harga_premium >= 0)?$req->harga_premium:0;
+        $dtHeadInsert['harga_premium'] = (isset($req->harga_premium) && $req->harga_premium >= 0)?$req->harga_premium:0;
         $dtHeadInsert['harga_platform_persen'] = ($req->harga_platform >= 0)?$req->harga_platform:0;
         $dtHeadInsert['harga_platform'] = ($req->harga_platform >= 0)?$req->harga_jual-(($req->harga_jual*$req->harga_platform)/100):0;
         // $dtHeadInsert['harga_level_newbie'] = ($req->harga_level_newbie >= 0)?$req->harga_level_newbie:0;

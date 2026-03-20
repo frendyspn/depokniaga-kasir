@@ -46,7 +46,7 @@
                             <div class="input-wrapper">
                                 <select class="form-control" name="type_login" id="type_login">
                                     <option value="admin">{{__('bahasa.admin')}}</option>
-                                    <option value="owner">{{__('bahasa.owner')}}</option>
+                                    <!-- <option value="owner">{{__('bahasa.owner')}}</option> -->
                                 </select>
                                 <i class="clear-input">
                                     <ion-icon name="close-circle"></ion-icon>

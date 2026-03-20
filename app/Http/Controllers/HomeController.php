@@ -19,10 +19,11 @@ class HomeController extends Controller
         $data['title'] = __('bahasa.Beranda');
         // $data['header'] = 'goback';
         $data['menu'] = '';
-        
-        if($data['toko'] == null){
-            Session::flush();
-            return redirect('/login')->with(['error_msg' => 'Tidak Terdaftar Sebagai Admin Toko']);    
+        // dd($this->getDataToko());
+        if($this->getDataToko() == null){
+            // Session::flush();
+            return redirect('/no_store');    
+            // return redirect('/login')->with(['error_msg' => 'Tidak Terdaftar Sebagai Admin Toko']);    
         }
 
         return view('home',$data);

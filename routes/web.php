@@ -41,6 +41,9 @@ Route::get('/cabang_edit/{id}', [CabangController::class, 'EditData'])->name('ca
 Route::post('/cabang_simpan', [CabangController::class, 'SaveData'])->name('cabang_simpan');
 Route::get('/cabang_hapus/{id}', [CabangController::class, 'DeleteData'])->name('cabang_hapus');
 
+Route::get('/no_store', [CabangController::class, 'NoStore'])->name('no_store');
+Route::get('/store_register', [CabangController::class, 'AddStore'])->name('store_register');
+
 Route::post('/get_provinsi', [Controller::class, 'GetProvinsi'])->name('get_provinsi');
 Route::post('/get_city', [Controller::class, 'GetKota'])->name('get_city');
 Route::post('/get_district', [Controller::class, 'GetKecamatan'])->name('get_district');

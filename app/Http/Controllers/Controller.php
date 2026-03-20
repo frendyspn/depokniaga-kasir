@@ -41,6 +41,7 @@ class Controller extends BaseController
     public function getDataToko()
     {
         $token_penjual = Session::get('token');
+        // dd($token_penjual);
         $cekPenjualKonsumen = DB::table('rb_konsumen')->where('remember_token', $token_penjual)->first();
         if(!$cekPenjualKonsumen){
             Session::flush();

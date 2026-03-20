@@ -15,13 +15,16 @@ if (!function_exists('api_token')) {
 if (!function_exists('api_url')) {
     function api_url(){
         // return 'http://localhost/apisatutoko/';
-        return 'https://api.satutoko.id/';
+        // return 'https://api.satutoko.my.id/';
+        // return 'https://tes.depokniaga.com/api/';
+        return 'https://api.depokniaga.com/';
     }
 }
 
 
 if (!function_exists('cek_login')) {
     function cek_login(){
+        // return Session::all();
         if (Session::has('token')){
             $token = Session::get('token');
             $no_hp = Session::get('no_hp');
@@ -36,7 +39,7 @@ if (!function_exists('cek_login')) {
             'Authorization'=> api_token(),
         ]) 
         ->post(api_url().'api/cek_login');
-
+// return $response->getStatusCode();
         if($response->getStatusCode() == '200'){
             if (Session::has('token') && Session::get('token') != '') {
                 return true;

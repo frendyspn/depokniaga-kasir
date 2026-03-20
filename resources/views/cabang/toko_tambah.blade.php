@@ -44,6 +44,19 @@
                             </div>
                         </div>
 
+                        <div class="form-group basic">
+                            <div class="input-wrapper">
+                                <label class="label" for="jenis_toko">Jenis Toko</label>
+                                <select class="form-control custom-select" id="jenis_toko" name="jenis_toko" required>
+                                    <option value="non-resto">Non Resto</option>
+                                    <option value="resto">Resto</option>
+                                </select>
+                                <i class="clear-input">
+                                    <ion-icon name="close-circle"></ion-icon>
+                                </i>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -91,6 +104,19 @@
                                     <ion-icon name="close-circle"></ion-icon>
                                 </i>
                             </div>
+                        </div>
+
+                        <div class="form-group basic">
+                            <div class="input-wrapper">
+                                <label class="label" for="kordinat_toko">Titik Kordinat</label>
+                                <textarea rows="2" class="form-control" id="kordinat_toko" name="kordinat_toko" placeholder="Titik Kordinat" required><?php if($detail_cabang) {echo $detail_cabang->kordinat;} else {echo'';} ?></textarea>
+                                <i class="clear-input">
+                                    <ion-icon name="close-circle"></ion-icon>
+                                </i>
+                            </div>
+                            <button type="button" class="btn btn-secondary btn-block mt-1" onclick="getCurrentLocation()">
+                                <ion-icon name="locate"></ion-icon> Gunakan Lokasi Saat Ini
+                            </button>
                         </div>
                         
 
@@ -147,7 +173,56 @@
 
     <script>
         
-        
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                // Show loading
+                $('#DialogLoading').modal('show');
+                
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // Get latitude and longitude
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+                    
+                    // Set the value in the textarea
+                    $('#kordinat_toko').val(latitude + ',' + longitude);
+                    
+                    // Hide loading
+                    setTimeout(function() {
+                        $('#DialogLoading').modal('hide');
+                    }, 500);
+                    
+                    // Show success notification
+                    // notification('notification-success', 3000);
+                }, function(error) {
+                    // Hide loading
+                    $('#DialogLoading').modal('hide');
+                    
+                    // Handle errors
+                    var errorMessage = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = "Izin akses lokasi ditolak. Harap aktifkan izin lokasi di browser Anda.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = "Informasi lokasi tidak tersedia.";
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = "Waktu permintaan lokasi habis.";
+                            break;
+                        default:
+                            errorMessage = "Terjadi kesalahan saat mengambil lokasi.";
+                            break;
+                    }
+                    alert(errorMessage);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                alert("Geolocation tidak didukung oleh browser ini.");
+            }
+        }
 
         $( document ).ready(function() {
             
