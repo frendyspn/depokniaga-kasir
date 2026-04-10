@@ -31,7 +31,7 @@ class TransaksiController extends Controller
             DB::raw('"POS" as source'),
             DB::raw('case when a.proses = "x" then "CANCEL" when a.proses in ("0","1") then "PENDING" else "" end as status'),
             'b.nama_lengkap as nama_pemesan',
-            DB::raw('(select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
+            DB::raw('(select sum(jumlah*(harga_jual-COALESCE(diskon,0))) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
         )
         ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pembeli')
         ->where('a.id_penjual', $this->getDataToko()->id_reseller)
@@ -63,7 +63,7 @@ class TransaksiController extends Controller
             DB::raw('"POS" as source'),
             DB::raw('case when a.proses = "x" then "CANCEL" when a.proses in ("0","1") then "PENDING" else "" end as status'),
             'b.nama_lengkap as nama_pemesan',
-            DB::raw('(select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
+            DB::raw('(select sum(jumlah*(harga_jual-COALESCE(diskon,0))) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
         )
         ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pembeli')
         ->where('a.id_penjual', $this->getDataToko()->id_reseller)
