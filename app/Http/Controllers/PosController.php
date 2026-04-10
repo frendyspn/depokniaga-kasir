@@ -734,13 +734,10 @@ class PosController extends Controller
                 $cekinsert = DB::table('rb_penjualan_detail')->insert($insertDetail);
             }
             
-            if ($dtPos['pengiriman']['kurir'] == 'tanpa_ongkir') {
-                // DB::statement('CALL SP_UPDATE_PENJUALAN_SUKSES(?)', [$id]);
-            }elseif ($dtPos['pengiriman']['kurir'] == 'ongkir_lokal') {
-                $kirim = $this->orderKurir($dtPos['pengiriman']['titik_jemput'], $dtPos['pengiriman']['titik_antar'], 'REGULAR', $id, 'POS');
-
+            if ($dtPos['pengiriman']['kurir'] == 'ongkir_lokal') {
+                $this->orderKurir($dtPos['pengiriman']['titik_jemput'], $dtPos['pengiriman']['titik_antar'], 'REGULAR', $id, 'POS');
             }
-            // dd($kirim);
+
             DB::commit();
             // DB::rollback();
 
@@ -782,41 +779,33 @@ class PosController extends Controller
 
 
 
-    public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $souce)
+    public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $source)
     {
-        // $titik_jemput = $req->titik_jemput;
-        // $titik_tujuan = $req->titik_tujuan;
-        // $service = $req->service;
-        // $id_penjualan = $req->id_penjualan;
-        // $souce = $req->source;
+        if ($titik_jemput == '' || $titik_tujuan == '') {
+            throw new \Exception('Titik antar dan jemput tidak boleh kosong');
+        }
 
-        // if ($titik_jemput == '' || $titik_tujuan == '') {
-        //     http_response_code(404);
-        //     exit(json_encode(['Message' => 'Titik antar dan jemput tidak boleh kosong']));
-        // }
-
-        // if ($titik_jemput == $titik_tujuan) {
-        //     http_response_code(404);
-        //     exit(json_encode(['Message' => 'Titik antar dan jemput tidak boleh sama']));
-        // }
+        if ($titik_jemput == $titik_tujuan) {
+            throw new \Exception('Titik antar dan jemput tidak boleh sama');
+        }
 
         $tarif = 7000;
 
         $data['tarif'] = $tarif;
 
-        // dd($data);
-
-        if ($id_penjualan != '' && ($souce == 'POS' || $souce == 'MP')) {
-            $cekPenjualan = DB::table('kurir_order')->where('id_penjualan', $id_penjualan)->where('source', $souce)->whereNotIn('status', ['cancel', 'onprocess'])->get();
+        if ($id_penjualan != '' && ($source == 'POS' || $source == 'MP')) {
+            $cekPenjualan = DB::table('kurir_order')
+                ->where('id_penjualan', $id_penjualan)
+                ->where('source', $source)
+                ->whereNotIn('status', ['cancel', 'onprocess'])
+                ->get();
             if (count($cekPenjualan) > 0) {
-                http_response_code(404);
-                exit(json_encode(['Message' => 'Id Penjualan Masih Aktif']));
+                throw new \Exception('Id Penjualan Masih Aktif');
             }
 
             $cekTblPenjualan = DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->first();
             if (!$cekTblPenjualan) {
-                http_response_code(404);
-                exit(json_encode(['Message' => 'Penjualan Tidak Ada Di Marketplace']));
+                throw new \Exception('Penjualan Tidak Ada Di Marketplace');
             }
 
             $data['kode_order'] = 'SND-' . time();
@@ -824,27 +813,22 @@ class PosController extends Controller
 
         $data['id_penjualan'] = $id_penjualan;
         $data['metode_pembayaran'] = 'WALLET';
-        
         $data['titik_jemput'] = $titik_jemput;
         $data['titik_antar'] = $titik_tujuan;
         $data['service'] = $service;
-
         $data['tanggal_order'] = date('Y-m-d H:i:s');
-        $data['source'] = $souce;
+        $data['source'] = $source;
 
         $insertOrder = DB::table('kurir_order')->insert($data);
         $id = DB::getPdo()->lastInsertId();
-        
-        if ($insertOrder) {
-            Http::withHeaders([ 
-                        'Accept'=> '*/*',
-                    ]) 
-                    ->get(api_url().'api/notification/new_order/'.$id_penjualan);
-            http_response_code(200);
-            exit(json_encode(['Message' => 'Order Sukses', 'id' => $id]));
-        } else {
-            http_response_code(404);
-            exit(json_encode(['Message' => 'Kesalahan Menyimpan Order']));
+
+        if (!$insertOrder) {
+            throw new \Exception('Kesalahan Menyimpan Order Kurir');
         }
+
+        Http::withHeaders(['Accept' => '*/*'])
+            ->get(api_url().'api/notification/new_order/'.$id_penjualan);
+
+        return $id;
     }
 }
