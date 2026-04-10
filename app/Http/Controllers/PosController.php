@@ -742,7 +742,16 @@ class PosController extends Controller
             }
             
             if ($dtPos['pengiriman']['kurir'] == 'ongkir_lokal') {
-                $this->orderKurir($dtPos['pengiriman']['titik_jemput'], $dtPos['pengiriman']['titik_antar'], 'REGULAR', $id, 'POS', $alamat_pengiriman);
+                $this->orderKurir(
+                    $dtPos['pengiriman']['titik_jemput'],
+                    $dtPos['pengiriman']['titik_antar'],
+                    'REGULAR',
+                    $id,
+                    'POS',
+                    $alamat_pengiriman,
+                    $dtPos['id_konsumen'],
+                    $this->getDataToko()->id_reseller
+                );
             }
 
             DB::commit();
@@ -786,7 +795,7 @@ class PosController extends Controller
 
 
 
-    public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $source, $alamat_antar = '')
+    public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $source, $alamat_antar = '', $id_pemesan = 0, $id_reseller = 0)
     {
         if ($titik_jemput == '') {
             throw new \Exception('Koordinat alamat jemput (toko) belum diatur');
@@ -810,15 +819,14 @@ class PosController extends Controller
                 throw new \Exception('Id Penjualan Masih Aktif');
             }
 
-            $cekTblPenjualan = DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->first();
-            if (!$cekTblPenjualan) {
-                throw new \Exception('Penjualan Tidak Ada Di Marketplace');
-            }
+            
 
             $data['kode_order'] = 'SND-' . time();
         }
 
         $data['id_penjualan'] = $id_penjualan;
+        $data['id_pemesan'] = $id_pemesan;
+        $data['id_reseller'] = $id_reseller;
         $data['metode_pembayaran'] = 'WALLET';
         $data['titik_jemput'] = $titik_jemput;
         $data['titik_antar'] = $titik_tujuan;
@@ -826,6 +834,7 @@ class PosController extends Controller
         $data['service'] = $service;
         $data['tanggal_order'] = date('Y-m-d H:i:s');
         $data['source'] = $source;
+        $data['status'] = 'SEARCH';
 
         $insertOrder = DB::table('kurir_order')->insert($data);
         $id = DB::getPdo()->lastInsertId();
