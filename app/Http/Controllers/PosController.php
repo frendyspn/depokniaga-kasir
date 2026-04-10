@@ -821,9 +821,9 @@ class PosController extends Controller
 
             
 
-            $data['kode_order'] = 'SND-' . time();
+            
         }
-
+        $data['kode_order'] = 'SND-' . time();
         $data['id_penjualan'] = $id_penjualan;
         $data['id_pemesan'] = $id_pemesan;
         $data['id_reseller'] = $id_reseller;
