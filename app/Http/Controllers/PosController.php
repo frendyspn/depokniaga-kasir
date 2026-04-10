@@ -740,7 +740,7 @@ class PosController extends Controller
                 $kirim = $this->orderKurir($dtPos['pengiriman']['titik_jemput'], $dtPos['pengiriman']['titik_antar'], 'REGULAR', $id, 'POS');
 
             }
-            dd($kirim);
+            // dd($kirim);
             DB::commit();
             // DB::rollback();
 
