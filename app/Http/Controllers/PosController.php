@@ -747,7 +747,7 @@ class PosController extends Controller
                     $dtPos['pengiriman']['titik_antar'],
                     'REGULAR',
                     $id,
-                    'POS',
+                    'LIVE_ORDER',
                     $alamat_pengiriman,
                     $dtPos['id_konsumen'],
                     $this->getDataToko()->id_reseller
