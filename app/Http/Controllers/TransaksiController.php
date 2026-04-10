@@ -30,10 +30,18 @@ class TransaksiController extends Controller
             DB::raw('"POS" as jenis_layanan'),
             DB::raw('"POS" as source'),
             DB::raw('case when a.proses = "x" then "CANCEL" when a.proses in ("0","1") then "PENDING" else "" end as status'),
+            DB::raw('case when a.proses = "0" then "Baru" when a.proses = "1" then "Diproses" when a.proses = "2" then "Dikirim" when a.proses = "4" then "Selesai" when a.proses = "5" then "Dikembalikan" when a.proses = "x" then "Dibatalkan" else a.proses end as status_transaksi'),
             'b.nama_lengkap as nama_pemesan',
+            'a.ongkir',
+            DB::raw('case when a.kurir = "tanpa_ongkir" then "Tanpa Ongkir" when a.kurir = "ongkir_toko" then "Antar Toko" when a.kurir = "ongkir_lokal" then "Kurir Lokal" else a.kurir end as metode_pengiriman'),
+            'c.status as status_pengiriman',
+            'e.nama_lengkap as nama_sopir',
             DB::raw('(select sum(jumlah*(harga_jual-COALESCE(diskon,0))) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
         )
         ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pembeli')
+        ->leftJoin('kurir_order as c', 'c.id_penjualan', 'a.id_penjualan')
+        ->leftJoin('rb_sopir as d', 'd.id_sopir', 'c.id_sopir')
+        ->leftJoin('rb_konsumen as e', 'e.id_konsumen', 'd.id_konsumen')
         ->where('a.id_penjual', $this->getDataToko()->id_reseller)
         ->whereIn('a.proses', ['0', '1'])
         ->orderByDesc('a.waktu_transaksi')
@@ -62,10 +70,18 @@ class TransaksiController extends Controller
             DB::raw('"POS" as jenis_layanan'),
             DB::raw('"POS" as source'),
             DB::raw('case when a.proses = "x" then "CANCEL" when a.proses in ("0","1") then "PENDING" else "" end as status'),
+            DB::raw('case when a.proses = "0" then "Baru" when a.proses = "1" then "Diproses" when a.proses = "2" then "Dikirim" when a.proses = "4" then "Selesai" when a.proses = "5" then "Dikembalikan" when a.proses = "x" then "Dibatalkan" else a.proses end as status_transaksi'),
             'b.nama_lengkap as nama_pemesan',
+            'a.ongkir',
+            DB::raw('case when a.kurir = "tanpa_ongkir" then "Tanpa Ongkir" when a.kurir = "ongkir_toko" then "Antar Toko" when a.kurir = "ongkir_lokal" then "Kurir Lokal" else a.kurir end as metode_pengiriman'),
+            'c.status as status_pengiriman',
+            'e.nama_lengkap as nama_sopir',
             DB::raw('(select sum(jumlah*(harga_jual-COALESCE(diskon,0))) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
         )
         ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pembeli')
+        ->leftJoin('kurir_order as c', 'c.id_penjualan', 'a.id_penjualan')
+        ->leftJoin('rb_sopir as d', 'd.id_sopir', 'c.id_sopir')
+        ->leftJoin('rb_konsumen as e', 'e.id_konsumen', 'd.id_konsumen')
         ->where('a.id_penjual', $this->getDataToko()->id_reseller)
         ->orderByDesc('a.waktu_transaksi')
         ->get();
