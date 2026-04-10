@@ -22,15 +22,21 @@ class TransaksiController extends Controller
         $data['header'] = 'goback';
         $data['menu'] = '';
 
-        $data['list_transaksi'] = DB::table('kurir_order as a')
-        ->select('a.id', 'a.alamat_antar', 'a.tanggal_order', 'a.jenis_layanan', 'a.source', 'a.status', 'b.nama_lengkap as nama_pemesan', 
-        DB::raw('case when a.JENIS_LAYANAN = "SHOP" then (select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_shop where id_kurir_order = a.id) else (select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_detail where id_penjualan = a.id_penjualan) end as total_belanja')
+        $data['list_transaksi'] = DB::table('rb_penjualan as a')
+        ->select(
+            'a.id_penjualan as id',
+            DB::raw('COALESCE(a.alamat_pengiriman, b.alamat_lengkap, "") as alamat_antar'),
+            'a.waktu_transaksi as tanggal_order',
+            DB::raw('"POS" as jenis_layanan'),
+            DB::raw('"POS" as source'),
+            DB::raw('case when a.proses = "x" then "CANCEL" when a.proses in ("0","1") then "PENDING" else "" end as status'),
+            'b.nama_lengkap as nama_pemesan',
+            DB::raw('(select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
         )
-        ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pemesan')
-        ->where('a.SOURCE', 'APPS')
-        ->where('a.id_reseller', $this->getDataToko()->id_reseller)
-        ->where('a.status', 'PENDING')
-        ->whereIn('a.JENIS_LAYANAN', ['SHOP','FOOD'])
+        ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pembeli')
+        ->where('a.id_penjual', $this->getDataToko()->id_reseller)
+        ->whereIn('a.proses', ['0', '1'])
+        ->orderByDesc('a.waktu_transaksi')
         ->get();
 
         return view('transaksi.transaksi',$data);
@@ -48,22 +54,20 @@ class TransaksiController extends Controller
         $data['header'] = 'goback';
         $data['menu'] = '';
 
-        $dt_apps = DB::table('kurir_order as a')
-        ->select('a.id', 'a.alamat_antar', 'a.tanggal_order', 'a.jenis_layanan', 'a.source', 'a.status', 'b.nama_lengkap as nama_pemesan', 
-        DB::raw('case when a.JENIS_LAYANAN = "SHOP" then (select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_shop where id_kurir_order = a.id) else (select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_detail where id_penjualan = a.id_penjualan) end as total_belanja')
-        )
-        ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pemesan')
-        ->where('a.SOURCE', 'APPS')
-        ->where('a.id_reseller', $this->getDataToko()->id_reseller)
-        ->whereIn('a.JENIS_LAYANAN', ['SHOP','FOOD']);
-
         $data['list_transaksi'] = DB::table('rb_penjualan as a')
-        ->select('a.id_penjualan as id', 'b.alamat_lengkap as alamat_antar', 'a.waktu_transaksi as tanggal_order', DB::raw('"POS" as jenis_layanan'), DB::raw('"POS" as source'), DB::raw('"" as status'), 'b.nama_lengkap as nama_pemesan',
-        DB::raw('(select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
+        ->select(
+            'a.id_penjualan as id',
+            DB::raw('COALESCE(a.alamat_pengiriman, b.alamat_lengkap, "") as alamat_antar'),
+            'a.waktu_transaksi as tanggal_order',
+            DB::raw('"POS" as jenis_layanan'),
+            DB::raw('"POS" as source'),
+            DB::raw('case when a.proses = "x" then "CANCEL" when a.proses in ("0","1") then "PENDING" else "" end as status'),
+            'b.nama_lengkap as nama_pemesan',
+            DB::raw('(select sum(jumlah*(harga_jual-diskon)) from rb_penjualan_detail where id_penjualan = a.id_penjualan) as total_belanja')
         )
         ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pembeli')
         ->where('a.id_penjual', $this->getDataToko()->id_reseller)
-        ->union($dt_apps)
+        ->orderByDesc('a.waktu_transaksi')
         ->get();
 
         return view('transaksi.transaksi',$data);
