@@ -140,9 +140,13 @@
                         console.log(response)
                         viewKeranjang()
                     },
-                    error: function(error) {
-                        console.log("error" + error.Message);
-                        notif('bg-danger', "{{__('bahasa.notif_barang_tidak_ditemukan')}}")
+                    error: function(xhr) {
+                        var msg = "{{__('bahasa.notif_barang_tidak_ditemukan')}}";
+                        try {
+                            var res = JSON.parse(xhr.responseText);
+                            if (res.Message) msg = res.Message;
+                        } catch(e) {}
+                        notif('bg-danger', msg);
                     }
                 });
             }
