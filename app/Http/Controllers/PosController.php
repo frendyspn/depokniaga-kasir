@@ -563,23 +563,27 @@ class PosController extends Controller
     {
         $no_hp = $req->no_hp;
         $cek_konsumen = DB::table('rb_konsumen')->where('no_hp', $no_hp)->first();
-        
-        $dataPos = Session::get('POS');
 
+        $dataPos = Session::get('POS');
         $dataPos['no_konsumen'] = $no_hp;
-        if($cek_konsumen){
+
+        if ($cek_konsumen) {
             $dataPos['tipe_konsumen'] = 'marketplace';
             $dataPos['id_konsumen'] = $cek_konsumen->id_konsumen;
             $nama = $cek_konsumen->nama_lengkap;
+            $alamat = $cek_konsumen->alamat_lengkap ?? '';
         } else {
             $dataPos['tipe_konsumen'] = 'umum';
             $dataPos['id_konsumen'] = 0;
             $nama = 'Konsumen Umum';
+            $alamat = '';
         }
+
         $dataPos['nama_konsumen'] = $nama;
+        $dataPos['pengiriman']['alamat_antar'] = $alamat;
         Session::put('POS', $dataPos);
 
-        return $nama;
+        return response()->json(['nama' => $nama, 'alamat' => $alamat]);
     }
 
 
@@ -695,6 +699,8 @@ class PosController extends Controller
         }
         $totalBelanja = $subTotal + $dtPos['pengiriman']['ongkir'] - $dtPos['diskon'];
 
+        $alamat_pengiriman = $req->alamat_pengiriman ?? ($dtPos['pengiriman']['alamat_antar'] ?? '');
+
         $insertMaster['kode_transaksi'] = 'POS-'.time();
         $insertMaster['id_pembeli'] = $dtPos['id_konsumen'];
         $insertMaster['id_penjual'] = $this->getDataToko()->id_reseller;
@@ -703,6 +709,7 @@ class PosController extends Controller
         $insertMaster['kurir'] = $dtPos['pengiriman']['kurir'];
         $insertMaster['ongkir'] = $dtPos['pengiriman']['ongkir'];
         $insertMaster['service'] = '-';
+        $insertMaster['alamat_pengiriman'] = $alamat_pengiriman;
         $insertMaster['waktu_transaksi'] = date('Y-m-d H:i:s');
 
         if ($dtPos['pengiriman']['kurir'] == 'tanpa_ongkir') {
@@ -735,7 +742,7 @@ class PosController extends Controller
             }
             
             if ($dtPos['pengiriman']['kurir'] == 'ongkir_lokal') {
-                $this->orderKurir($dtPos['pengiriman']['titik_jemput'], $dtPos['pengiriman']['titik_antar'], 'REGULAR', $id, 'POS');
+                $this->orderKurir($dtPos['pengiriman']['titik_jemput'], $dtPos['pengiriman']['titik_antar'], 'REGULAR', $id, 'POS', $alamat_pengiriman);
             }
 
             DB::commit();
@@ -779,14 +786,14 @@ class PosController extends Controller
 
 
 
-    public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $source)
+    public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $source, $alamat_antar = '')
     {
-        if ($titik_jemput == '' || $titik_tujuan == '') {
-            throw new \Exception('Titik antar dan jemput tidak boleh kosong');
+        if ($titik_jemput == '') {
+            throw new \Exception('Koordinat alamat jemput (toko) belum diatur');
         }
 
-        if ($titik_jemput == $titik_tujuan) {
-            throw new \Exception('Titik antar dan jemput tidak boleh sama');
+        if ($alamat_antar == '') {
+            throw new \Exception('Alamat tujuan (konsumen) belum diisi');
         }
 
         $tarif = 7000;
@@ -815,6 +822,7 @@ class PosController extends Controller
         $data['metode_pembayaran'] = 'WALLET';
         $data['titik_jemput'] = $titik_jemput;
         $data['titik_antar'] = $titik_tujuan;
+        $data['alamat_antar'] = $alamat_antar;
         $data['service'] = $service;
         $data['tanggal_order'] = date('Y-m-d H:i:s');
         $data['source'] = $source;

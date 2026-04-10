@@ -78,6 +78,14 @@ $total_belanja = 0;
                 </div>
             </div>
         </li>
+        <li id="li_alamat_pengiriman" style="<?php echo ($POS['pengiriman']['kurir'] == 'ongkir_lokal') ? '' : 'display:none'; ?>">
+            <div class="form-group basic" style="width:100%">
+                <div class="input-wrapper">
+                    <label class="label">Alamat Pengiriman</label>
+                    <textarea class="form-control" id="pos_alamat_pengiriman" name="pos_alamat_pengiriman" rows="3" placeholder="Masukkan alamat tujuan pengiriman...">{{ $POS['pengiriman']['alamat_antar'] ?? '' }}</textarea>
+                </div>
+            </div>
+        </li>
         <li>
             <strong>{{__('bahasa.biaya_kirim')}}</strong>
             <span id="ongkir-tampil">{{number_format($POS['pengiriman']['ongkir'])}}</span>
@@ -148,6 +156,11 @@ $total_belanja = 0;
 
 <script>
     function pilih_pengiriman(pengiriman){
+        if (pengiriman === 'ongkir_lokal') {
+            $('#li_alamat_pengiriman').show();
+        } else {
+            $('#li_alamat_pengiriman').hide();
+        }
         $.ajax({
             url: "<?= route('pos_pilih_pengiriman') ?>",
             method: "POST",
@@ -157,13 +170,11 @@ $total_belanja = 0;
             dataType: 'HTML',
             data : {pengiriman},
             success: function(response) {
-                console.log(response)
-                // $('#keranjang_view').html(response)
                 viewKeranjang()
             },
-            error: function(error) {
-                console.log("error" + error);
-                notif('bg-danger', error.responseText)
+            error: function(xhr) {
+                var msg = xhr.responseText || 'Terjadi kesalahan';
+                notif('bg-danger', msg);
                 viewKeranjang()
             }
         });
@@ -256,12 +267,24 @@ $total_belanja = 0;
     }
 
     function bayar() {
+        var kurir = $('#pos_pengiriman').val();
+        if (kurir === 'ongkir_lokal') {
+            var alamat = $('#pos_alamat_pengiriman').val().trim();
+            if (!alamat) {
+                notif('bg-danger', 'Alamat tujuan pengiriman tidak boleh kosong');
+                return;
+            }
+        }
+
         $('#DialogLoading').modal('show')
         $.ajax({
             url: "<?= route('pos_bayar') ?>",
             method: "POST",
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                alamat_pengiriman: $('#pos_alamat_pengiriman').val() ?? ''
             },
             dataType: 'JSON',
             success: function(response) {

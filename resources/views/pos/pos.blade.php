@@ -179,9 +179,12 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 data: {no_hp},
-                dataType: 'TEXT',
+                dataType: 'JSON',
                 success: function(response) {
-                    $('#tempat_nama_konsumen').html(response)
+                    $('#tempat_nama_konsumen').html(response.nama)
+                    if (response.alamat) {
+                        $('#pos_alamat_pengiriman').val(response.alamat)
+                    }
                 },
                 error: function(error) {
                     console.log("error" + error);
