@@ -727,18 +727,42 @@ class PosController extends Controller
             
         }
 
+        // Pre-load fee kategori untuk semua produk di keranjang (1 query)
+        $idProdukList = array_column($dtKeranjang, 'id_produk');
+        $kategoriFeeMap = DB::table('rb_produk as p')
+            ->select('p.id_produk', 'k.fee_merchant', 'k.fee_type')
+            ->leftJoin('rb_kategori_produk as k', 'k.id_kategori_produk', 'p.id_kategori_produk')
+            ->whereIn('p.id_produk', $idProdukList)
+            ->get()
+            ->keyBy('id_produk');
+
         try {
             DB::beginTransaction();
             $id = DB::table('rb_penjualan')->insertGetId($insertMaster);
 
-            for ($k=0; $k < count($dtKeranjang); $k++) { 
-                $insertDetail['id_penjualan'] = $id;
-                $insertDetail['id_produk'] = $dtKeranjang[$k]['id_produk'];
-                $insertDetail['jumlah'] = $dtKeranjang[$k]['qty'];
-                $insertDetail['diskon'] = $dtKeranjang[$k]['diskon'];
-                $insertDetail['harga_jual'] = $dtKeranjang[$k]['harga_konsumen'];
-                $insertDetail['satuan'] = $dtKeranjang[$k]['satuan'];
-                $cekinsert = DB::table('rb_penjualan_detail')->insert($insertDetail);
+            for ($k = 0; $k < count($dtKeranjang); $k++) {
+                $idProduk      = $dtKeranjang[$k]['id_produk'];
+                $qty           = $dtKeranjang[$k]['qty'];
+                $hargaKonsumen = $dtKeranjang[$k]['harga_konsumen'];
+
+                $kategoriInfo  = $kategoriFeeMap[$idProduk] ?? null;
+                $feeMerchant   = $kategoriInfo ? (float) $kategoriInfo->fee_merchant : 0;
+                $feeType       = $kategoriInfo ? $kategoriInfo->fee_type : 'NOMINAL';
+
+                if ($feeType === 'PERSENTASE') {
+                    $feeProdukEnd = round($hargaKonsumen * $feeMerchant / 100) * $qty;
+                } else {
+                    $feeProdukEnd = $feeMerchant * $qty;
+                }
+
+                $insertDetail['id_penjualan']  = $id;
+                $insertDetail['id_produk']     = $idProduk;
+                $insertDetail['jumlah']        = $qty;
+                $insertDetail['diskon']        = $dtKeranjang[$k]['diskon'];
+                $insertDetail['harga_jual']    = $hargaKonsumen;
+                $insertDetail['satuan']        = $dtKeranjang[$k]['satuan'];
+                $insertDetail['fee_produk_end'] = $feeProdukEnd;
+                DB::table('rb_penjualan_detail')->insert($insertDetail);
             }
             
             if ($dtPos['pengiriman']['kurir'] == 'ongkir_lokal') {
