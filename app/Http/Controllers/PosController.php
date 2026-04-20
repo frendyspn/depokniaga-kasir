@@ -352,45 +352,9 @@ class PosController extends Controller
             $dataPos['pengiriman']['ongkir'] = 0;
             $dataPos['pengiriman']['kurir'] = 'tanpa_ongkir';
         } else if ($req->pengiriman == 'ongkir_toko') {
-            $dataPos['pengiriman']['ongkir'] = 7000;
+            $kordinat_konsumen = $dataPos['pengiriman']['kordinat_konsumen'] ?? '';
+            $dataPos['pengiriman']['ongkir'] = $this->hitungOngkirToko($kordinat_konsumen);
             $dataPos['pengiriman']['kurir'] = 'ongkir_toko';
-        } else if ($req->pengiriman == 'ongkir_lokal') {
-            $id_konsumen = $dataPos['id_konsumen'];
-            if($id_konsumen == '0'){
-                http_response_code(404);
-                exit(json_encode(['Konsumen Belum Ada Terdaftar']));
-            }
-            
-            $cek_koordinat_konsumen = DB::table('rb_konsumen')->where('id_konsumen', $id_konsumen)->first();
-            // if ($cek_koordinat_konsumen->kordinat_lokasi == '') {
-            //     http_response_code(404);
-            //     exit(json_encode(['Konsumen Belum Ada Koordinat']));
-            // }
-
-            $token_penjual = Session::get('token');
-            $cekPenjualKonsumen = DB::table('rb_konsumen')->where('remember_token', $token_penjual)->first();
-            $dtPenjual = DB::table('rb_reseller')->where('id_konsumen', $cekPenjualKonsumen->id_konsumen)->first();
-            $cek_koordinat_penjual = DB::table('rb_reseller')->where('id_reseller', $dtPenjual->id_reseller)->first();
-            if ($cek_koordinat_penjual->kordinat == '') {
-                http_response_code(404);
-                exit(json_encode([__('bahasa.notif_penjual_belum_ada_koordinat')]));
-            }
-
-            // $response = Http::withHeaders([ 
-            //     'Accept'=> '*/*', 
-            // ]) 
-            // ->get('https://api.satutoko.id/api/kurir/v1/hitungJarak/'.trim($cek_koordinat_penjual->kordinat,' ').'/'.trim($cek_koordinat_konsumen->kordinat_lokasi, ' ').'/REGULAR');
-            
-            // if ($response->body() < 0) {
-            //     http_response_code(404);
-            //     exit(json_encode(__('bahasa.notif_jarak_terlalu_jauh')));
-            // }
-
-            // $dataPos['pengiriman']['ongkir'] = $response->body();
-            $dataPos['pengiriman']['ongkir'] = 7000;
-            $dataPos['pengiriman']['kurir'] = 'ongkir_lokal';
-            $dataPos['pengiriman']['titik_jemput'] = trim($cek_koordinat_penjual->kordinat,' ');
-            $dataPos['pengiriman']['titik_antar'] = trim($cek_koordinat_konsumen->kordinat_lokasi,' ');
         } else {
             $dataPos['pengiriman']['ongkir'] = 0;
             $dataPos['pengiriman']['kurir'] = $req->pengiriman;
@@ -572,18 +536,21 @@ class PosController extends Controller
             $dataPos['id_konsumen'] = $cek_konsumen->id_konsumen;
             $nama = $cek_konsumen->nama_lengkap;
             $alamat = $cek_konsumen->alamat_lengkap ?? '';
+            $kordinat = $cek_konsumen->kordinat_lokasi ?? '';
         } else {
             $dataPos['tipe_konsumen'] = 'umum';
             $dataPos['id_konsumen'] = 0;
             $nama = 'Konsumen Umum';
             $alamat = '';
+            $kordinat = '';
         }
 
         $dataPos['nama_konsumen'] = $nama;
         $dataPos['pengiriman']['alamat_antar'] = $alamat;
+        $dataPos['pengiriman']['kordinat_konsumen'] = $kordinat;
         Session::put('POS', $dataPos);
 
-        return response()->json(['nama' => $nama, 'alamat' => $alamat]);
+        return response()->json(['nama' => $nama, 'alamat' => $alamat, 'kordinat' => $kordinat]);
     }
 
 
@@ -699,7 +666,8 @@ class PosController extends Controller
         }
         $totalBelanja = $subTotal + $dtPos['pengiriman']['ongkir'] - $dtPos['diskon'];
 
-        $alamat_pengiriman = $req->alamat_pengiriman ?? ($dtPos['pengiriman']['alamat_antar'] ?? '');
+        $alamat_pengiriman   = $req->alamat_pengiriman   ?? ($dtPos['pengiriman']['alamat_antar']       ?? '');
+        $kordinat_pengiriman = $req->kordinat_pengiriman ?? ($dtPos['pengiriman']['kordinat_konsumen'] ?? '');
 
         $insertMaster['kode_transaksi'] = 'POS-'.time();
         $insertMaster['id_pembeli'] = $dtPos['id_konsumen'];
@@ -709,7 +677,8 @@ class PosController extends Controller
         $insertMaster['kurir'] = $dtPos['pengiriman']['kurir'];
         $insertMaster['ongkir'] = $dtPos['pengiriman']['ongkir'];
         $insertMaster['service'] = '-';
-        $insertMaster['alamat_pengiriman'] = $alamat_pengiriman;
+        $insertMaster['alamat_pengiriman']   = $alamat_pengiriman;
+        $insertMaster['kordinat_pengiriman'] = $kordinat_pengiriman;
         $insertMaster['waktu_transaksi'] = date('Y-m-d H:i:s');
 
         if ($dtPos['pengiriman']['kurir'] == 'tanpa_ongkir') {
@@ -765,19 +734,6 @@ class PosController extends Controller
                 DB::table('rb_penjualan_detail')->insert($insertDetail);
             }
             
-            if ($dtPos['pengiriman']['kurir'] == 'ongkir_lokal') {
-                $this->orderKurir(
-                    $dtPos['pengiriman']['titik_jemput'],
-                    $dtPos['pengiriman']['titik_antar'],
-                    'REGULAR',
-                    $id,
-                    'LIVE_ORDER',
-                    $alamat_pengiriman,
-                    $dtPos['id_konsumen'],
-                    $this->getDataToko()->id_reseller
-                );
-            }
-
             DB::commit();
             // DB::rollback();
 
@@ -818,6 +774,58 @@ class PosController extends Controller
     }
 
 
+
+    private function hitungJarak(string $kordinat1, string $kordinat2): float
+    {
+        [$lat1, $lng1] = array_map('floatval', explode(',', $kordinat1));
+        [$lat2, $lng2] = array_map('floatval', explode(',', $kordinat2));
+        $R    = 6371.0;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+        $a    = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
+        return $R * 2 * atan2(sqrt($a), sqrt(1 - $a));
+    }
+
+    private function hitungOngkirToko(string $kordinat_konsumen): float
+    {
+        $cfg = DB::table('rb_config')
+            ->whereIn('field', ['type_kurir', 'ongkir_awal_kurir'])
+            ->get()->keyBy('field');
+        $typeKurir  = $cfg['type_kurir']->value  ?? 'flat';
+        $ongkirAwal = (float)($cfg['ongkir_awal_kurir']->value ?? 0);
+
+        if (in_array($typeKurir, ['km', 'distance']) && $kordinat_konsumen !== '') {
+            $dtToko = DB::table('rb_reseller')
+                ->where('id_reseller', $this->getDataToko()->id_reseller)
+                ->first();
+            $kordinat_toko = trim($dtToko->kordinat ?? '');
+            if ($kordinat_toko !== '') {
+                $jarak = $this->hitungJarak($kordinat_toko, $kordinat_konsumen);
+                return round($jarak * $ongkirAwal);
+            }
+        }
+        return $ongkirAwal;
+    }
+
+    public function SimpanKordinat(Request $req)
+    {
+        $dataPos = Session::get('POS');
+        if ($req->has('alamat_pengiriman')) {
+            $dataPos['pengiriman']['alamat_antar'] = $req->alamat_pengiriman;
+        }
+        if ($req->has('kordinat_pengiriman')) {
+            $dataPos['pengiriman']['kordinat_konsumen'] = $req->kordinat_pengiriman;
+        }
+
+        if (($dataPos['pengiriman']['kurir'] ?? '') === 'ongkir_toko') {
+            $dataPos['pengiriman']['ongkir'] = $this->hitungOngkirToko(
+                $dataPos['pengiriman']['kordinat_konsumen'] ?? ''
+            );
+        }
+
+        Session::put('POS', $dataPos);
+        return response()->json(['ok' => true, 'ongkir' => $dataPos['pengiriman']['ongkir']]);
+    }
 
     public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $source, $alamat_antar = '', $id_pemesan = 0, $id_reseller = 0)
     {

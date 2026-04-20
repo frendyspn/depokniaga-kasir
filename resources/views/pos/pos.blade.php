@@ -182,9 +182,7 @@
                 dataType: 'JSON',
                 success: function(response) {
                     $('#tempat_nama_konsumen').html(response.nama)
-                    if (response.alamat) {
-                        $('#pos_alamat_pengiriman').val(response.alamat)
-                    }
+                    viewKeranjang()
                 },
                 error: function(error) {
                     console.log("error" + error);

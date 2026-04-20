@@ -72,20 +72,35 @@ $total_belanja = 0;
                     <select class="form-control custom-select" id="pos_pengiriman" name="pos_pengiriman" onchange="pilih_pengiriman($(this).val())">
                         <option <?php if($POS['pengiriman']['kurir'] == 'tanpa_ongkir') {echo 'selected';} ?> value="tanpa_ongkir">{{__('bahasa.tanpa_ongkir')}}</option>
                         <option <?php if($POS['pengiriman']['kurir'] == 'ongkir_toko') {echo 'selected';} ?> value="ongkir_toko">{{__('bahasa.ongkir_toko')}}</option>
-                        <option <?php if($POS['pengiriman']['kurir'] == 'ongkir_lokal') {echo 'selected';} ?> value="ongkir_lokal">{{__('bahasa.kurir_lokal')}}</option>
-                        <!-- <option <?php if($POS['pengiriman']['kurir'] == 'nasional') {echo 'selected';} ?> value="nasional">Nasional</option> -->
                     </select>
                 </div>
             </div>
         </li>
-        <li id="li_alamat_pengiriman" style="<?php echo ($POS['pengiriman']['kurir'] == 'ongkir_lokal') ? '' : 'display:none'; ?>">
-            <div class="form-group basic" style="width:100%">
-                <div class="input-wrapper">
+        @if(!empty($POS['nama_konsumen']))
+        <li>
+            <div style="width:100%">
+                <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Alamat Pengiriman</label>
-                    <textarea class="form-control" id="pos_alamat_pengiriman" name="pos_alamat_pengiriman" rows="3" placeholder="Masukkan alamat tujuan pengiriman...">{{ $POS['pengiriman']['alamat_antar'] ?? '' }}</textarea>
+                    <textarea class="form-control" id="pos_alamat_pengiriman" rows="3"
+                        placeholder="Masukkan alamat tujuan pengiriman...">{{ $POS['pengiriman']['alamat_antar'] ?? '' }}</textarea>
                 </div>
+                <div class="form-group basic" style="margin-bottom:6px">
+                    <label class="label">Koordinat Pengiriman</label>
+                    <input type="text" class="form-control" id="pos_kordinat_pengiriman"
+                        placeholder="-6.123456,106.123456"
+                        value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}">
+                </div>
+                <div class="form-group basic" style="margin-bottom:6px">
+                    <label class="label">Link Google Maps</label>
+                    <div style="display:flex;gap:6px;align-items:center">
+                        <input type="text" class="form-control" id="pos_link_maps" placeholder="Tempel link Google Maps di sini...">
+                        <button class="btn btn-sm btn-secondary" style="white-space:nowrap" onclick="ekstrak_kordinat()">Ambil</button>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-primary btn-block" onclick="simpan_kordinat()">Simpan Alamat &amp; Koordinat</button>
             </div>
         </li>
+        @endif
         <li>
             <strong>{{__('bahasa.biaya_kirim')}}</strong>
             <span id="ongkir-tampil">{{number_format($POS['pengiriman']['ongkir'])}}</span>
@@ -156,11 +171,6 @@ $total_belanja = 0;
 
 <script>
     function pilih_pengiriman(pengiriman){
-        if (pengiriman === 'ongkir_lokal') {
-            $('#li_alamat_pengiriman').show();
-        } else {
-            $('#li_alamat_pengiriman').hide();
-        }
         $.ajax({
             url: "<?= route('pos_pilih_pengiriman') ?>",
             method: "POST",
@@ -266,9 +276,41 @@ $total_belanja = 0;
         });
     }
 
+    function simpan_kordinat() {
+        var alamat   = $('#pos_alamat_pengiriman').val().trim();
+        var kordinat = $('#pos_kordinat_pengiriman').val().trim();
+        $.ajax({
+            url: "<?= route('pos_simpan_kordinat') ?>",
+            method: "POST",
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            data: { alamat_pengiriman: alamat, kordinat_pengiriman: kordinat },
+            dataType: 'JSON',
+            success: function(response) {
+                notif('bg-success', 'Alamat & Koordinat tersimpan');
+                viewKeranjang();
+            },
+            error: function() {
+                notif('bg-danger', 'Gagal menyimpan alamat');
+            }
+        });
+    }
+
+    function ekstrak_kordinat() {
+        var url = $('#pos_link_maps').val().trim();
+        var match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)
+                 || url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/)
+                 || url.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (match) {
+            $('#pos_kordinat_pengiriman').val(match[1] + ',' + match[2]);
+            $('#pos_link_maps').val('');
+        } else {
+            notif('bg-danger', 'Format link Maps tidak dikenali');
+        }
+    }
+
     function bayar() {
         var kurir = $('#pos_pengiriman').val();
-        if (kurir === 'ongkir_lokal') {
+        if (kurir === 'ongkir_toko') {
             var alamat = $('#pos_alamat_pengiriman').val().trim();
             if (!alamat) {
                 notif('bg-danger', 'Alamat tujuan pengiriman tidak boleh kosong');
@@ -284,7 +326,8 @@ $total_belanja = 0;
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             data: {
-                alamat_pengiriman: $('#pos_alamat_pengiriman').val() ?? ''
+                alamat_pengiriman:   $('#pos_alamat_pengiriman').val()   || '',
+                kordinat_pengiriman: $('#pos_kordinat_pengiriman').val() || ''
             },
             dataType: 'JSON',
             success: function(response) {
