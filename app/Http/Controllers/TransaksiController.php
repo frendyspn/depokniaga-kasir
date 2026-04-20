@@ -101,11 +101,25 @@ class TransaksiController extends Controller
                 $kode_trans = $penjualan_header->kode_order;
             }
         } else {
-            $penjualan_header = DB::table('rb_penjualan as a')->select('a.*', 'b.nama_lengkap', 'b.alamat_lengkap as alamat_antar', DB::raw('"POS" as jenis_layanan'), DB::raw('"POS" as source'))->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pembeli')->where('a.id_penjualan', $id)->first();
-            $penjualan_detail = DB::table('rb_penjualan_detail as a')->select('a.*', 'b.nama_produk')->leftJoin('rb_produk as b', 'b.id_produk', 'a.id_produk')->where('a.id_penjualan', $id)->get();
-            $kode_trans = '';
+            $penjualan_header = DB::table('rb_penjualan as a')
+                ->select('a.*', 'b.nama_lengkap', 'b.no_hp', 'b.alamat_lengkap', DB::raw('"POS" as jenis_layanan'), DB::raw('"POS" as source'))
+                ->leftJoin('rb_konsumen as b', 'b.id_konsumen', 'a.id_pembeli')
+                ->where('a.id_penjualan', $id)
+                ->first();
+            $penjualan_detail = DB::table('rb_penjualan_detail as a')
+                ->select('a.*', 'b.nama_produk')
+                ->leftJoin('rb_produk as b', 'b.id_produk', 'a.id_produk')
+                ->where('a.id_penjualan', $id)
+                ->get();
+            $data['dt_kurir'] = DB::table('kurir_order as a')
+                ->select('a.*', 'c.nama_lengkap as nama_sopir', 'b.plat_nomor', 'b.merek')
+                ->leftJoin('rb_sopir as b', 'b.id_sopir', 'a.id_sopir')
+                ->leftJoin('rb_konsumen as c', 'c.id_konsumen', 'b.id_konsumen')
+                ->where('a.id_penjualan', $id)
+                ->first();
+            $kode_trans = $penjualan_header->kode_transaksi ?? '';
         }
-        
+
         $data['dt_header'] = $penjualan_header;
         $data['dt_detail'] = $penjualan_detail;
 
