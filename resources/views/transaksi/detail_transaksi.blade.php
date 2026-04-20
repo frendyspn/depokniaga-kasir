@@ -122,29 +122,75 @@
         </div>
     </div>
 
-    {{-- ── Konsumen ── --}}
-    <p class="det-section-label">Konsumen</p>
-    <div class="det-card">
-        <div class="det-row">
-            <span class="det-label">Nama</span>
-            <span class="det-value">{{ $dt_header->nama_lengkap ?? 'Konsumen Umum' }}</span>
+    {{-- ── Konsumen + Pengiriman (side-by-side on md+) ── --}}
+    <div class="row g-0" style="margin:0 16px 4px; gap:12px; flex-wrap:wrap">
+
+        <div class="{{ $dtKurir ? 'col-12 col-md' : 'col-12' }}" style="min-width:0">
+            <p class="det-section-label" style="padding:0; margin:12px 0 6px">Konsumen</p>
+            <div class="det-card" style="margin:0; height:auto">
+                <div class="det-row">
+                    <span class="det-label">Nama</span>
+                    <span class="det-value">{{ $dt_header->nama_lengkap ?? 'Konsumen Umum' }}</span>
+                </div>
+                @if($dt_header->no_hp ?? null)
+                <div class="det-row">
+                    <span class="det-label">No. HP</span>
+                    <span class="det-value">{{ $dt_header->no_hp }}</span>
+                </div>
+                @endif
+                @if($alamat && $alamat != '-')
+                <div class="det-row" style="align-items:flex-start">
+                    <span class="det-label">Alamat</span>
+                    <span class="det-value" style="text-align:right; line-height:1.5">{{ $alamat }}</span>
+                </div>
+                @endif
+                <div class="det-row">
+                    <span class="det-label">Pengiriman</span>
+                    <span class="det-value">{{ $metode }}</span>
+                </div>
+            </div>
         </div>
-        @if($dt_header->no_hp ?? null)
-        <div class="det-row">
-            <span class="det-label">No. HP</span>
-            <span class="det-value">{{ $dt_header->no_hp }}</span>
+
+        @if($dtKurir)
+        <div class="col-12 col-md" style="min-width:0">
+            <p class="det-section-label" style="padding:0; margin:12px 0 6px">Pengiriman</p>
+            <div class="det-card" style="margin:0; height:auto">
+                <div class="det-row" style="align-items:center">
+                    <span class="det-label">Status</span>
+                    <span class="det-value">
+                        <span class="det-badge" style="color:{{ $shipInfo['color'] }}; background:{{ $shipInfo['bg'] }}">
+                            {{ $shipInfo['label'] }}
+                        </span>
+                    </span>
+                </div>
+                @if($dtKurir->kode_order ?? null)
+                <div class="det-row">
+                    <span class="det-label">Kode Order</span>
+                    <span class="det-value">{{ $dtKurir->kode_order }}</span>
+                </div>
+                @endif
+                @if(($dtKurir->tarif ?? 0) > 0)
+                <div class="det-row">
+                    <span class="det-label">Tarif</span>
+                    <span class="det-value">Rp{{ number_format($dtKurir->tarif) }}</span>
+                </div>
+                @endif
+                @if($dtKurir->nama_sopir ?? null)
+                <div class="det-row">
+                    <span class="det-label">Kurir</span>
+                    <span class="det-value" style="font-weight:600">{{ $dtKurir->nama_sopir }}</span>
+                </div>
+                @endif
+                @if($dtKurir->plat_nomor ?? null)
+                <div class="det-row">
+                    <span class="det-label">Kendaraan</span>
+                    <span class="det-value">{{ $dtKurir->merek }} &middot; {{ $dtKurir->plat_nomor }}</span>
+                </div>
+                @endif
+            </div>
         </div>
         @endif
-        @if($alamat && $alamat != '-')
-        <div class="det-row" style="align-items:flex-start">
-            <span class="det-label">Alamat</span>
-            <span class="det-value" style="text-align:right; line-height:1.5">{{ $alamat }}</span>
-        </div>
-        @endif
-        <div class="det-row">
-            <span class="det-label">Pengiriman</span>
-            <span class="det-value">{{ $metode }}</span>
-        </div>
+
     </div>
 
     {{-- ── Pesanan ── --}}
@@ -199,45 +245,6 @@
         </div>
         @endif
     </div>
-
-    {{-- ── Pengiriman / Kurir ── --}}
-    @if($dtKurir)
-    <p class="det-section-label">Pengiriman</p>
-    <div class="det-card">
-        <div class="det-row" style="align-items:center">
-            <span class="det-label">Status</span>
-            <span class="det-value">
-                <span class="det-badge" style="color:{{ $shipInfo['color'] }}; background:{{ $shipInfo['bg'] }}">
-                    {{ $shipInfo['label'] }}
-                </span>
-            </span>
-        </div>
-        @if($dtKurir->kode_order ?? null)
-        <div class="det-row">
-            <span class="det-label">Kode Order</span>
-            <span class="det-value">{{ $dtKurir->kode_order }}</span>
-        </div>
-        @endif
-        @if(($dtKurir->tarif ?? 0) > 0)
-        <div class="det-row">
-            <span class="det-label">Tarif</span>
-            <span class="det-value">Rp{{ number_format($dtKurir->tarif) }}</span>
-        </div>
-        @endif
-        @if($dtKurir->nama_sopir ?? null)
-        <div class="det-row">
-            <span class="det-label">Kurir</span>
-            <span class="det-value" style="font-weight:600">{{ $dtKurir->nama_sopir }}</span>
-        </div>
-        @endif
-        @if($dtKurir->plat_nomor ?? null)
-        <div class="det-row">
-            <span class="det-label">Kendaraan</span>
-            <span class="det-value">{{ $dtKurir->merek }} &middot; {{ $dtKurir->plat_nomor }}</span>
-        </div>
-        @endif
-    </div>
-    @endif
 
     {{-- ── APPS: Confirm / Cancel ── --}}
     @if(($dt_header->source ?? '') == 'APPS' && ($dt_header->status ?? '') == 'PENDING')
