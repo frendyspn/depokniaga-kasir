@@ -800,11 +800,35 @@ class PosController extends Controller
                 ->first();
             $kordinat_toko = trim($dtToko->kordinat ?? '');
             if ($kordinat_toko !== '') {
-                $jarak = $this->hitungJarak($kordinat_toko, $kordinat_konsumen);
-                return round($jarak * $ongkirAwal);
+                $jarakKm = $this->hitungJarakGoogle($kordinat_toko, $kordinat_konsumen)
+                        ?? $this->hitungJarak($kordinat_toko, $kordinat_konsumen);
+                return round($jarakKm * $ongkirAwal);
             }
         }
         return $ongkirAwal;
+    }
+
+    private function hitungJarakGoogle(string $kordinat1, string $kordinat2): ?float
+    {
+        $apiKey = env('GOOGLE_MAPS_API_KEY');
+        if (!$apiKey) return null;
+
+        try {
+            $response = Http::timeout(5)->get('https://maps.googleapis.com/maps/api/distancematrix/json', [
+                'origins'      => $kordinat1,
+                'destinations' => $kordinat2,
+                'key'          => $apiKey,
+            ]);
+
+            $data = $response->json();
+            $meters = $data['rows'][0]['elements'][0]['distance']['value'] ?? null;
+            if ($meters === null || ($data['rows'][0]['elements'][0]['status'] ?? '') !== 'OK') {
+                return null;
+            }
+            return $meters / 1000.0;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public function SimpanKordinat(Request $req)
