@@ -92,7 +92,7 @@ $total_belanja = 0;
                     <input type="text" class="form-control" id="pos_kordinat_pengiriman_display"
                         placeholder="-6.123456,106.123456"
                         value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}"
-                        oninput="document.getElementById('pos_kordinat_pengiriman').value = this.value">
+                        oninput="window.posKordinat = this.value">
                 </div>
                 <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Link Google Maps</label>
@@ -177,6 +177,11 @@ $total_belanja = 0;
 
 
 <script>
+    // Sync window.posKordinat dari session saat view di-render ulang
+    @if(!empty($POS['pengiriman']['kordinat_konsumen']))
+    window.posKordinat = '{{ $POS['pengiriman']['kordinat_konsumen'] }}';
+    @endif
+
     function tampilInfoJarak(response) {
         if (response && response.jarak_km !== null && response.jarak_km !== undefined) {
             var via = response.via === 'google' ? 'Google Maps' : 'estimasi garis lurus';
@@ -188,9 +193,7 @@ $total_belanja = 0;
     }
 
     function pilih_pengiriman(pengiriman){
-        var kordinatEl = document.getElementById('pos_kordinat_pengiriman');
-        var kordinat   = kordinatEl ? kordinatEl.value.trim() : '';
-        console.log('[pilih_pengiriman] pengiriman=' + pengiriman + ' | kordinat=' + kordinat + ' | elFound=' + !!kordinatEl);
+        var kordinat = (window.posKordinat || '').trim();
         $.ajax({
             url: "<?= route('pos_pilih_pengiriman') ?>",
             method: "POST",
@@ -299,7 +302,7 @@ $total_belanja = 0;
 
     function simpan_kordinat() {
         var alamat   = $('#pos_alamat_pengiriman').val().trim();
-        var kordinat = document.getElementById('pos_kordinat_pengiriman').value.trim();
+        var kordinat = (window.posKordinat || '').trim();
         $.ajax({
             url: "<?= route('pos_simpan_kordinat') ?>",
             method: "POST",
@@ -324,7 +327,7 @@ $total_belanja = 0;
                  || url.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
         if (match) {
             var kord = match[1] + ',' + match[2];
-            document.getElementById('pos_kordinat_pengiriman').value = kord;
+            window.posKordinat = kord;
             var display = document.getElementById('pos_kordinat_pengiriman_display');
             if (display) display.value = kord;
             $('#pos_link_maps').val('');

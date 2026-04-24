@@ -62,6 +62,8 @@
     <!-- * App Capsule -->
 
     <script>
+        window.posKordinat = '';
+
         $( document ).ready(function() {
             viewBarang('')
             viewKeranjang()
@@ -182,9 +184,7 @@
                 dataType: 'JSON',
                 success: function(response) {
                     $('#tempat_nama_konsumen').html(response.nama)
-                    // Langsung isi hidden kordinat agar tersedia sebelum viewKeranjang selesai
-                    var hiddenKord = document.getElementById('pos_kordinat_pengiriman');
-                    if (hiddenKord) hiddenKord.value = response.kordinat || '';
+                    window.posKordinat = response.kordinat || '';
                     viewKeranjang()
                 },
                 error: function(error) {
