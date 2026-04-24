@@ -92,7 +92,7 @@ $total_belanja = 0;
                     <input type="text" class="form-control" id="pos_kordinat_pengiriman_display"
                         placeholder="-6.123456,106.123456"
                         value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}"
-                        oninput="window.posKordinat = this.value">
+                        oninput="window.posKordinat = this.value.trim(); console.log('Display input updated:', window.posKordinat);">
                 </div>
                 <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Link Google Maps</label>
@@ -183,6 +183,13 @@ $total_belanja = 0;
         var displayInput = document.getElementById('pos_kordinat_pengiriman_display');
         var sessionValue = '{{ $POS['pengiriman']['kordinat_konsumen'] }}';
         
+        console.log('Smart Sync Init:', {
+            display_found: displayInput !== null,
+            display_value: displayInput ? displayInput.value : 'N/A',
+            session_value: sessionValue,
+            window_posKordinat_before: window.posKordinat
+        });
+        
         // Jika window.posKordinat belum punya nilai, gunakan dari session atau input
         if (!window.posKordinat || window.posKordinat === '') {
             if (displayInput && displayInput.value.trim()) {
@@ -196,6 +203,11 @@ $total_belanja = 0;
         if (displayInput && window.posKordinat && !displayInput.value.trim()) {
             displayInput.value = window.posKordinat;
         }
+        
+        console.log('Smart Sync Complete:', {
+            window_posKordinat_after: window.posKordinat,
+            display_value_final: displayInput ? displayInput.value : 'N/A'
+        });
     })();
 
     function tampilInfoJarak(response) {
@@ -209,8 +221,22 @@ $total_belanja = 0;
     }
 
     function pilih_pengiriman(pengiriman){
-        var display  = document.getElementById('pos_kordinat_pengiriman_display');
-        var kordinat = display ? display.value.trim() : (window.posKordinat || '').trim();
+        var display = document.getElementById('pos_kordinat_pengiriman_display');
+        
+        // Prioritas koordinat: 
+        // 1. Nilai dari input display (user input terbaru)
+        // 2. Fallback ke window.posKordinat (dari session/cek_konsumen)
+        var displayValue = (display && display.value) ? display.value.trim() : '';
+        var kordinat = displayValue || (window.posKordinat || '').trim();
+        
+        // Debug log
+        console.log('pilih_pengiriman debug:', {
+            pengiriman: pengiriman,
+            display_found: display !== null,
+            display_value: displayValue,
+            window_posKordinat: window.posKordinat,
+            final_kordinat: kordinat
+        });
         
         // Validasi: jika memilih ongkir_toko dan koordinat kosong, minta input terlebih dahulu
         if (pengiriman === 'ongkir_toko' && !kordinat) {
@@ -327,7 +353,11 @@ $total_belanja = 0;
     function simpan_kordinat() {
         var alamat   = $('#pos_alamat_pengiriman').val().trim();
         var display  = document.getElementById('pos_kordinat_pengiriman_display');
-        var kordinat = display ? display.value.trim() : (window.posKordinat || '').trim();
+        
+        // Prioritas: display value > window.posKordinat
+        var displayValue = (display && display.value) ? display.value.trim() : '';
+        var kordinat = displayValue || (window.posKordinat || '').trim();
+        
         $.ajax({
             url: "<?= route('pos_simpan_kordinat') ?>",
             method: "POST",
