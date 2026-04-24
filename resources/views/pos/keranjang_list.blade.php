@@ -184,6 +184,9 @@ $total_belanja = 0;
     }
 
     function pilih_pengiriman(pengiriman){
+        var kordinatEl = document.getElementById('pos_kordinat_pengiriman');
+        var kordinat   = kordinatEl ? kordinatEl.value.trim() : '';
+        console.log('[pilih_pengiriman] pengiriman=' + pengiriman + ' | kordinat=' + kordinat + ' | elFound=' + !!kordinatEl);
         $.ajax({
             url: "<?= route('pos_pilih_pengiriman') ?>",
             method: "POST",
@@ -191,7 +194,7 @@ $total_belanja = 0;
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             dataType: 'JSON',
-            data : {pengiriman, kordinat_pengiriman: $('#pos_kordinat_pengiriman').val() || ''},
+            data : {pengiriman: pengiriman, kordinat_pengiriman: kordinat},
             success: function(response) {
                 tampilInfoJarak(response);
                 viewKeranjang()
