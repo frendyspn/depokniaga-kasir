@@ -105,6 +105,9 @@ $total_belanja = 0;
             <strong>{{__('bahasa.biaya_kirim')}}</strong>
             <span id="ongkir-tampil">{{number_format($POS['pengiriman']['ongkir'])}}</span>
         </li>
+        <li id="li_info_jarak" style="display:none">
+            <small id="info_jarak" style="color:#1565c0"></small>
+        </li>
         <li>
             <strong>{{__('bahasa.diskon')}}</strong>
             <span style="margin-left:20px">{{number_format($POS['diskon'])}}</span>
@@ -170,6 +173,16 @@ $total_belanja = 0;
 
 
 <script>
+    function tampilInfoJarak(response) {
+        if (response && response.jarak_km !== null && response.jarak_km !== undefined) {
+            var via = response.via === 'google' ? 'Google Maps' : 'estimasi garis lurus';
+            $('#info_jarak').html('📍 Jarak: <strong>' + response.jarak_km + ' km</strong> (via ' + via + ') &nbsp;·&nbsp; Ongkir: <strong>Rp' + response.ongkir.toLocaleString('id-ID') + '</strong>');
+            $('#li_info_jarak').show();
+        } else {
+            $('#li_info_jarak').hide();
+        }
+    }
+
     function pilih_pengiriman(pengiriman){
         $.ajax({
             url: "<?= route('pos_pilih_pengiriman') ?>",
@@ -177,9 +190,10 @@ $total_belanja = 0;
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            dataType: 'HTML',
+            dataType: 'JSON',
             data : {pengiriman},
             success: function(response) {
+                tampilInfoJarak(response);
                 viewKeranjang()
             },
             error: function(xhr) {
@@ -287,6 +301,7 @@ $total_belanja = 0;
             dataType: 'JSON',
             success: function(response) {
                 notif('bg-success', 'Alamat & Koordinat tersimpan');
+                tampilInfoJarak(response);
                 viewKeranjang();
             },
             error: function() {

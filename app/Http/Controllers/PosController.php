@@ -351,17 +351,22 @@ class PosController extends Controller
         if ($req->pengiriman == 'tanpa_ongkir') {
             $dataPos['pengiriman']['ongkir'] = 0;
             $dataPos['pengiriman']['kurir'] = 'tanpa_ongkir';
+            Session::put('POS', $dataPos);
+            return response()->json(['ongkir' => 0, 'jarak_km' => null, 'via' => null]);
         } else if ($req->pengiriman == 'ongkir_toko') {
             $kordinat_konsumen = $dataPos['pengiriman']['kordinat_konsumen'] ?? '';
             \Log::info('[PilihPengiriman] kordinat_konsumen dari session: '.$kordinat_konsumen);
-            $dataPos['pengiriman']['ongkir'] = $this->hitungOngkirToko($kordinat_konsumen);
+            $result = $this->hitungOngkirToko($kordinat_konsumen);
+            $dataPos['pengiriman']['ongkir'] = $result['ongkir'];
             $dataPos['pengiriman']['kurir'] = 'ongkir_toko';
+            Session::put('POS', $dataPos);
+            return response()->json($result);
         } else {
             $dataPos['pengiriman']['ongkir'] = 0;
             $dataPos['pengiriman']['kurir'] = $req->pengiriman;
+            Session::put('POS', $dataPos);
+            return response()->json(['ongkir' => 0, 'jarak_km' => null, 'via' => null]);
         }
-
-        Session::put('POS', $dataPos);
     }
 
     public function InputDiskon(Request $req)
@@ -787,7 +792,7 @@ class PosController extends Controller
         return $R * 2 * atan2(sqrt($a), sqrt(1 - $a));
     }
 
-    private function hitungOngkirToko(string $kordinat_konsumen): float
+    private function hitungOngkirToko(string $kordinat_konsumen): array
     {
         $cfg = DB::table('rb_config')
             ->whereIn('field', ['type_kurir', 'ongkir_awal_kurir'])
@@ -804,14 +809,20 @@ class PosController extends Controller
             $kordinat_toko = trim($dtToko->kordinat ?? '');
             \Log::info('[hitungOngkirToko] kordinat_toko='.$kordinat_toko);
             if ($kordinat_toko !== '') {
-                $jarakKm = $this->hitungJarakGoogle($kordinat_toko, $kordinat_konsumen)
-                        ?? $this->hitungJarak($kordinat_toko, $kordinat_konsumen);
-                \Log::info('[hitungOngkirToko] jarakKm='.$jarakKm.' | ongkir='.round($jarakKm * $ongkirAwal));
-                return round($jarakKm * $ongkirAwal);
+                $googleKm = $this->hitungJarakGoogle($kordinat_toko, $kordinat_konsumen);
+                if ($googleKm !== null) {
+                    $ongkir = round($googleKm * $ongkirAwal);
+                    \Log::info('[hitungOngkirToko] Google: jarakKm='.$googleKm.' | ongkir='.$ongkir);
+                    return ['ongkir' => $ongkir, 'jarak_km' => round($googleKm, 2), 'via' => 'google'];
+                }
+                $haversineKm = $this->hitungJarak($kordinat_toko, $kordinat_konsumen);
+                $ongkir = round($haversineKm * $ongkirAwal);
+                \Log::info('[hitungOngkirToko] Haversine: jarakKm='.$haversineKm.' | ongkir='.$ongkir);
+                return ['ongkir' => $ongkir, 'jarak_km' => round($haversineKm, 2), 'via' => 'haversine'];
             }
         }
         \Log::info('[hitungOngkirToko] fallback flat ongkir='.$ongkirAwal);
-        return $ongkirAwal;
+        return ['ongkir' => $ongkirAwal, 'jarak_km' => null, 'via' => 'flat'];
     }
 
     private function hitungJarakGoogle(string $kordinat1, string $kordinat2): ?float
@@ -856,14 +867,14 @@ class PosController extends Controller
             $dataPos['pengiriman']['kordinat_konsumen'] = $req->kordinat_pengiriman;
         }
 
+        $result = null;
         if (($dataPos['pengiriman']['kurir'] ?? '') === 'ongkir_toko') {
-            $dataPos['pengiriman']['ongkir'] = $this->hitungOngkirToko(
-                $dataPos['pengiriman']['kordinat_konsumen'] ?? ''
-            );
+            $result = $this->hitungOngkirToko($dataPos['pengiriman']['kordinat_konsumen'] ?? '');
+            $dataPos['pengiriman']['ongkir'] = $result['ongkir'];
         }
 
         Session::put('POS', $dataPos);
-        return response()->json(['ok' => true, 'ongkir' => $dataPos['pengiriman']['ongkir']]);
+        return response()->json(array_merge(['ok' => true], $result ?? ['ongkir' => $dataPos['pengiriman']['ongkir'], 'jarak_km' => null, 'via' => null]));
     }
 
     public function orderKurir($titik_jemput, $titik_tujuan, $service, $id_penjualan, $source, $alamat_antar = '', $id_pemesan = 0, $id_reseller = 0)
