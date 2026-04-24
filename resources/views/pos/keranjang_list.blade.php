@@ -177,10 +177,26 @@ $total_belanja = 0;
 
 
 <script>
-    // Sync window.posKordinat dari session saat view di-render ulang
-    @if(!empty($POS['pengiriman']['kordinat_konsumen']))
-    window.posKordinat = '{{ $POS['pengiriman']['kordinat_konsumen'] }}';
-    @endif
+    // Sinkronkan window.posKordinat dengan session value, tapi jangan override jika sudah ada nilai
+    // Prioritas: window.posKordinat > input display value > session value
+    (function(){
+        var displayInput = document.getElementById('pos_kordinat_pengiriman_display');
+        var sessionValue = '{{ $POS['pengiriman']['kordinat_konsumen'] }}';
+        
+        // Jika window.posKordinat belum punya nilai, gunakan dari session atau input
+        if (!window.posKordinat || window.posKordinat === '') {
+            if (displayInput && displayInput.value.trim()) {
+                window.posKordinat = displayInput.value.trim();
+            } else if (sessionValue) {
+                window.posKordinat = sessionValue;
+            }
+        }
+        
+        // Sinkronkan input display agar selalu sesuai dengan window.posKordinat
+        if (displayInput && window.posKordinat && !displayInput.value.trim()) {
+            displayInput.value = window.posKordinat;
+        }
+    })();
 
     function tampilInfoJarak(response) {
         if (response && response.jarak_km !== null && response.jarak_km !== undefined) {
@@ -195,6 +211,13 @@ $total_belanja = 0;
     function pilih_pengiriman(pengiriman){
         var display  = document.getElementById('pos_kordinat_pengiriman_display');
         var kordinat = display ? display.value.trim() : (window.posKordinat || '').trim();
+        
+        // Validasi: jika memilih ongkir_toko dan koordinat kosong, minta input terlebih dahulu
+        if (pengiriman === 'ongkir_toko' && !kordinat) {
+            notif('bg-warning', 'Mohon masukkan koordinat pengiriman terlebih dahulu');
+            return;
+        }
+        
         $.ajax({
             url: "<?= route('pos_pilih_pengiriman') ?>",
             method: "POST",

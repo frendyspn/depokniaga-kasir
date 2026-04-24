@@ -327,6 +327,24 @@ class PosController extends Controller
             $dataPos['voucher']['keterangan'] = '';
             $dataPos['voucher']['catatan'] = '';
         }
+        
+        // Pastikan field pengiriman selalu lengkap dengan default values
+        if (!isset($dataPos['pengiriman'])) {
+            $dataPos['pengiriman'] = [];
+        }
+        if (!isset($dataPos['pengiriman']['ongkir'])) {
+            $dataPos['pengiriman']['ongkir'] = 0;
+        }
+        if (!isset($dataPos['pengiriman']['kurir'])) {
+            $dataPos['pengiriman']['kurir'] = 'tanpa_ongkir';
+        }
+        if (!isset($dataPos['pengiriman']['alamat_antar'])) {
+            $dataPos['pengiriman']['alamat_antar'] = '';
+        }
+        if (!isset($dataPos['pengiriman']['kordinat_konsumen'])) {
+            $dataPos['pengiriman']['kordinat_konsumen'] = '';
+        }
+        
         // return json_encode($dataPos);
         Session::put('POS', $dataPos);
 
@@ -537,6 +555,15 @@ class PosController extends Controller
         $cek_konsumen = DB::table('rb_konsumen')->where('no_hp', $no_hp)->first();
 
         $dataPos = Session::get('POS');
+        
+        // Pastikan $dataPos adalah array dan punya struktur minimal
+        if(!is_array($dataPos)) {
+            $dataPos = [];
+        }
+        if (!isset($dataPos['pengiriman']) || !is_array($dataPos['pengiriman'])) {
+            $dataPos['pengiriman'] = [];
+        }
+        
         $dataPos['no_konsumen'] = $no_hp;
 
         if ($cek_konsumen) {

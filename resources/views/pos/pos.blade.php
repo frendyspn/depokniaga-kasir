@@ -184,7 +184,9 @@
                 dataType: 'JSON',
                 success: function(response) {
                     $('#tempat_nama_konsumen').html(response.nama)
+                    // Set koordinat ke window global
                     window.posKordinat = response.kordinat || '';
+                    // Refresh keranjang, yang mana akan sinkronkan koordinat dengan input display
                     viewKeranjang()
                 },
                 error: function(error) {
