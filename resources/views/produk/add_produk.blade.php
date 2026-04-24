@@ -99,7 +99,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="input-wrapper">
-                                        <label class="label" for="harga_jual">Harga Ecer</label>
+                                        <label class="label" for="harga_jual">Harga Jual</label>
                                         <input type="number" class="form-control" id="harga_jual" name="harga_jual">
                                         <i class="clear-input">
                                             <ion-icon name="close-circle" role="img" class="md hydrated" aria-label="close circle"></ion-icon>
@@ -120,7 +120,7 @@
                             
                         </div>
 
-                        <div class="form-group boxed">
+                        <div class="form-group boxed d-none">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="input-wrapper">
