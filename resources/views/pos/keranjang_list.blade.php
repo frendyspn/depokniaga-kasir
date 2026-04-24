@@ -81,18 +81,23 @@ $total_belanja = 0;
 
         @if(!empty($POS['nama_konsumen']))
         <li>
-            <div style="width:100%">
+            <div style="width:100%; border: 2px solid #ff6b6b; padding: 10px; border-radius: 4px; background-color: #fff5f5; margin-bottom: 10px;">
+                <div style="margin-bottom: 8px;">
+                    <strong style="color: #ff6b6b;">⚠️ PERHATIAN: Isi Koordinat jika pilih Ongkir Toko</strong>
+                    <small style="display: block; color: #666;">Data koordinat diperlukan untuk menghitung biaya pengiriman</small>
+                </div>
                 <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Alamat Pengiriman</label>
                     <textarea class="form-control" id="pos_alamat_pengiriman" rows="3"
                         placeholder="Masukkan alamat tujuan pengiriman...">{{ $POS['pengiriman']['alamat_antar'] ?? '' }}</textarea>
                 </div>
                 <div class="form-group basic" style="margin-bottom:6px">
-                    <label class="label">Koordinat Pengiriman</label>
+                    <label class="label">Koordinat Pengiriman <span style="color:red;">*</span></label>
                     <input type="text" class="form-control" id="pos_kordinat_pengiriman_display"
                         placeholder="-6.123456,106.123456"
                         value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}"
                         oninput="window.posKordinat = this.value.trim(); console.log('Display input updated:', window.posKordinat);">
+                    <small style="color:#666; display:block; margin-top:4px;">Format: lat,lon (contoh: -6.123456,106.789)</small>
                 </div>
                 <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Link Google Maps</label>
@@ -194,23 +199,26 @@ $total_belanja = 0;
             window_posKordinat_before_type: typeof window.posKordinat
         });
         
-        // Jika window.posKordinat belum punya nilai, gunakan dari session atau input
-        if (!window.posKordinat || window.posKordinat === '') {
-            if (displayInput && displayInput.value.trim()) {
-                window.posKordinat = displayInput.value.trim();
-                console.log('[SMART_SYNC] Set from display value:', window.posKordinat);
-            } else if (sessionValue) {
-                window.posKordinat = sessionValue;
-                console.log('[SMART_SYNC] Set from session value:', window.posKordinat);
-            } else {
-                console.log('[SMART_SYNC] No value to set - both display and session are empty');
-            }
+        // Priority sync logic:
+        // 1. Gunakan display input value jika sudah punya
+        if (displayInput && displayInput.value.trim()) {
+            window.posKordinat = displayInput.value.trim();
+            console.log('[SMART_SYNC] Priority 1: Set from display value:', window.posKordinat);
         }
-        
-        // Sinkronkan input display agar selalu sesuai dengan window.posKordinat
-        if (displayInput && window.posKordinat && !displayInput.value.trim()) {
-            displayInput.value = window.posKordinat;
-            console.log('[SMART_SYNC] Populated display input from window.posKordinat:', window.posKordinat);
+        // 2. Jika window.posKordinat kosong, coba dari session
+        else if (!window.posKordinat || window.posKordinat.trim() === '') {
+            if (sessionValue && sessionValue.trim()) {
+                window.posKordinat = sessionValue.trim();
+                console.log('[SMART_SYNC] Priority 2: Set from session value:', window.posKordinat);
+                // Populate display dari session
+                if (displayInput) {
+                    displayInput.value = window.posKordinat;
+                    console.log('[SMART_SYNC] Populated display input from session');
+                }
+            } else {
+                console.log('[SMART_SYNC] No value from any source - koordinat will be empty');
+                window.posKordinat = '';
+            }
         }
         
         console.log('[SMART_SYNC] State After:', {
@@ -222,8 +230,11 @@ $total_belanja = 0;
         if (displayInput) {
             displayInput.addEventListener('input', function() {
                 console.log('[DISPLAY_INPUT_CHANGE] New value:', this.value);
+                window.posKordinat = this.value.trim();
             });
             console.log('[SMART_SYNC] Added input listener to display element');
+        } else {
+            console.warn('[SMART_SYNC] WARNING: Display element NOT FOUND at initialization!');
         }
     })();
 
@@ -273,7 +284,10 @@ $total_belanja = 0;
                 window_posKordinat: window.posKordinat,
                 final_kordinat: kordinat
             });
-            notif('bg-warning', 'Mohon masukkan koordinat pengiriman terlebih dahulu');
+            notif('bg-danger', '❌ <strong>KOORDINAT BELUM DIISI!</strong><br/><small>Silakan isi di field "Koordinat Pengiriman" atau copy dari link Google Maps</small>');
+            // Auto-scroll ke field koordinat
+            var kordField = document.querySelector('li [style*="border"]');
+            if (kordField) kordField.scrollIntoView({behavior: 'smooth'});
             return;
         }
         
