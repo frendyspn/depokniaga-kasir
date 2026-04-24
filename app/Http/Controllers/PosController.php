@@ -354,8 +354,10 @@ class PosController extends Controller
             Session::put('POS', $dataPos);
             return response()->json(['ongkir' => 0, 'jarak_km' => null, 'via' => null]);
         } else if ($req->pengiriman == 'ongkir_toko') {
-            $kordinat_konsumen = $dataPos['pengiriman']['kordinat_konsumen'] ?? '';
-            \Log::info('[PilihPengiriman] kordinat_konsumen dari session: '.$kordinat_konsumen);
+            $kordinat_konsumen = trim($req->kordinat_pengiriman ?? '')
+                              ?: ($dataPos['pengiriman']['kordinat_konsumen'] ?? '');
+            $dataPos['pengiriman']['kordinat_konsumen'] = $kordinat_konsumen;
+            \Log::info('[PilihPengiriman] kordinat_konsumen: '.$kordinat_konsumen);
             $result = $this->hitungOngkirToko($kordinat_konsumen);
             $dataPos['pengiriman']['ongkir'] = $result['ongkir'];
             $dataPos['pengiriman']['kurir'] = 'ongkir_toko';

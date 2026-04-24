@@ -191,7 +191,7 @@ $total_belanja = 0;
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             dataType: 'JSON',
-            data : {pengiriman},
+            data : {pengiriman, kordinat_pengiriman: $('#pos_kordinat_pengiriman').val() || ''},
             success: function(response) {
                 tampilInfoJarak(response);
                 viewKeranjang()
