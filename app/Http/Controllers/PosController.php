@@ -353,6 +353,7 @@ class PosController extends Controller
             $dataPos['pengiriman']['kurir'] = 'tanpa_ongkir';
         } else if ($req->pengiriman == 'ongkir_toko') {
             $kordinat_konsumen = $dataPos['pengiriman']['kordinat_konsumen'] ?? '';
+            \Log::info('[PilihPengiriman] kordinat_konsumen dari session: '.$kordinat_konsumen);
             $dataPos['pengiriman']['ongkir'] = $this->hitungOngkirToko($kordinat_konsumen);
             $dataPos['pengiriman']['kurir'] = 'ongkir_toko';
         } else {
@@ -794,24 +795,32 @@ class PosController extends Controller
         $typeKurir  = $cfg['type_kurir']->value  ?? 'flat';
         $ongkirAwal = (float)($cfg['ongkir_awal_kurir']->value ?? 0);
 
+        \Log::info('[hitungOngkirToko] typeKurir='.$typeKurir.' | ongkirAwal='.$ongkirAwal.' | kordinat_konsumen='.$kordinat_konsumen);
+
         if (in_array($typeKurir, ['km', 'distance']) && $kordinat_konsumen !== '') {
             $dtToko = DB::table('rb_reseller')
                 ->where('id_reseller', $this->getDataToko()->id_reseller)
                 ->first();
             $kordinat_toko = trim($dtToko->kordinat ?? '');
+            \Log::info('[hitungOngkirToko] kordinat_toko='.$kordinat_toko);
             if ($kordinat_toko !== '') {
                 $jarakKm = $this->hitungJarakGoogle($kordinat_toko, $kordinat_konsumen)
                         ?? $this->hitungJarak($kordinat_toko, $kordinat_konsumen);
+                \Log::info('[hitungOngkirToko] jarakKm='.$jarakKm.' | ongkir='.round($jarakKm * $ongkirAwal));
                 return round($jarakKm * $ongkirAwal);
             }
         }
+        \Log::info('[hitungOngkirToko] fallback flat ongkir='.$ongkirAwal);
         return $ongkirAwal;
     }
 
     private function hitungJarakGoogle(string $kordinat1, string $kordinat2): ?float
     {
         $apiKey = env('GOOGLE_MAPS_API_KEY');
-        if (!$apiKey) return null;
+        if (!$apiKey) {
+            \Log::warning('[hitungJarakGoogle] API key kosong');
+            return null;
+        }
 
         try {
             $response = Http::timeout(5)->get('https://maps.googleapis.com/maps/api/distancematrix/json', [
@@ -821,12 +830,18 @@ class PosController extends Controller
             ]);
 
             $data = $response->json();
-            $meters = $data['rows'][0]['elements'][0]['distance']['value'] ?? null;
-            if ($meters === null || ($data['rows'][0]['elements'][0]['status'] ?? '') !== 'OK') {
+            \Log::info('[hitungJarakGoogle] response: '.json_encode($data));
+
+            $status  = $data['rows'][0]['elements'][0]['status'] ?? 'UNKNOWN';
+            $meters  = $data['rows'][0]['elements'][0]['distance']['value'] ?? null;
+
+            if ($meters === null || $status !== 'OK') {
+                \Log::warning('[hitungJarakGoogle] gagal, status='.$status);
                 return null;
             }
             return $meters / 1000.0;
         } catch (\Exception $e) {
+            \Log::error('[hitungJarakGoogle] exception: '.$e->getMessage());
             return null;
         }
     }
