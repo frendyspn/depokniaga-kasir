@@ -794,35 +794,39 @@ class PosController extends Controller
 
     private function hitungOngkirToko(string $kordinat_konsumen): array
     {
-        $cfg = DB::table('rb_config')
+        $rawCfg = DB::table('rb_config')
             ->whereIn('field', ['type_kurir', 'ongkir_awal_kurir'])
-            ->get()->keyBy('field');
+            ->get();
+        $cfg        = $rawCfg->keyBy('field');
         $typeKurir  = $cfg['type_kurir']->value  ?? 'flat';
         $ongkirAwal = (float)($cfg['ongkir_awal_kurir']->value ?? 0);
 
-        \Log::info('[hitungOngkirToko] typeKurir='.$typeKurir.' | ongkirAwal='.$ongkirAwal.' | kordinat_konsumen='.$kordinat_konsumen);
+        $debug = [
+            'kordinat_konsumen' => $kordinat_konsumen,
+            'typeKurir'         => $typeKurir,
+            'ongkirAwal'        => $ongkirAwal,
+            'raw_config'        => $rawCfg->toArray(),
+        ];
 
         if (in_array($typeKurir, ['km', 'distance']) && $kordinat_konsumen !== '') {
             $dtToko = DB::table('rb_reseller')
                 ->where('id_reseller', $this->getDataToko()->id_reseller)
                 ->first();
             $kordinat_toko = trim($dtToko->kordinat ?? '');
-            \Log::info('[hitungOngkirToko] kordinat_toko='.$kordinat_toko);
+            $debug['kordinat_toko'] = $kordinat_toko;
+
             if ($kordinat_toko !== '') {
                 $googleKm = $this->hitungJarakGoogle($kordinat_toko, $kordinat_konsumen);
                 if ($googleKm !== null) {
                     $ongkir = round($googleKm * $ongkirAwal);
-                    \Log::info('[hitungOngkirToko] Google: jarakKm='.$googleKm.' | ongkir='.$ongkir);
-                    return ['ongkir' => $ongkir, 'jarak_km' => round($googleKm, 2), 'via' => 'google'];
+                    return ['ongkir' => $ongkir, 'jarak_km' => round($googleKm, 2), 'via' => 'google', 'debug' => $debug];
                 }
                 $haversineKm = $this->hitungJarak($kordinat_toko, $kordinat_konsumen);
                 $ongkir = round($haversineKm * $ongkirAwal);
-                \Log::info('[hitungOngkirToko] Haversine: jarakKm='.$haversineKm.' | ongkir='.$ongkir);
-                return ['ongkir' => $ongkir, 'jarak_km' => round($haversineKm, 2), 'via' => 'haversine'];
+                return ['ongkir' => $ongkir, 'jarak_km' => round($haversineKm, 2), 'via' => 'haversine', 'debug' => $debug];
             }
         }
-        \Log::info('[hitungOngkirToko] fallback flat ongkir='.$ongkirAwal);
-        return ['ongkir' => $ongkirAwal, 'jarak_km' => null, 'via' => 'flat'];
+        return ['ongkir' => $ongkirAwal, 'jarak_km' => null, 'via' => 'flat', 'debug' => $debug];
     }
 
     private function hitungJarakGoogle(string $kordinat1, string $kordinat2): ?float
