@@ -76,6 +76,9 @@ $total_belanja = 0;
                 </div>
             </div>
         </li>
+        {{-- input kordinat selalu ada di DOM agar bisa dibaca JS, tampil/sembunyi lewat CSS --}}
+        <input type="hidden" id="pos_kordinat_pengiriman" value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}">
+
         @if(!empty($POS['nama_konsumen']))
         <li>
             <div style="width:100%">
@@ -86,9 +89,10 @@ $total_belanja = 0;
                 </div>
                 <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Koordinat Pengiriman</label>
-                    <input type="text" class="form-control" id="pos_kordinat_pengiriman"
+                    <input type="text" class="form-control" id="pos_kordinat_pengiriman_display"
                         placeholder="-6.123456,106.123456"
-                        value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}">
+                        value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}"
+                        oninput="document.getElementById('pos_kordinat_pengiriman').value = this.value">
                 </div>
                 <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Link Google Maps</label>
@@ -295,7 +299,7 @@ $total_belanja = 0;
 
     function simpan_kordinat() {
         var alamat   = $('#pos_alamat_pengiriman').val().trim();
-        var kordinat = $('#pos_kordinat_pengiriman').val().trim();
+        var kordinat = document.getElementById('pos_kordinat_pengiriman').value.trim();
         $.ajax({
             url: "<?= route('pos_simpan_kordinat') ?>",
             method: "POST",
@@ -319,7 +323,10 @@ $total_belanja = 0;
                  || url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/)
                  || url.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
         if (match) {
-            $('#pos_kordinat_pengiriman').val(match[1] + ',' + match[2]);
+            var kord = match[1] + ',' + match[2];
+            document.getElementById('pos_kordinat_pengiriman').value = kord;
+            var display = document.getElementById('pos_kordinat_pengiriman_display');
+            if (display) display.value = kord;
             $('#pos_link_maps').val('');
         } else {
             notif('bg-danger', 'Format link Maps tidak dikenali');
