@@ -180,34 +180,51 @@ $total_belanja = 0;
     // Sinkronkan window.posKordinat dengan session value, tapi jangan override jika sudah ada nilai
     // Prioritas: window.posKordinat > input display value > session value
     (function(){
+        console.log('[SMART_SYNC_INIT] Starting sync...');
         var displayInput = document.getElementById('pos_kordinat_pengiriman_display');
         var sessionValue = '{{ $POS['pengiriman']['kordinat_konsumen'] }}';
         
-        console.log('Smart Sync Init:', {
-            display_found: displayInput !== null,
-            display_value: displayInput ? displayInput.value : 'N/A',
+        console.log('[SMART_SYNC] State Before:', {
+            display_element_found: displayInput !== null,
+            display_element_value: displayInput ? displayInput.value : 'ELEMENT_NOT_FOUND',
+            display_element_value_trimmed: displayInput ? displayInput.value.trim() : 'ELEMENT_NOT_FOUND',
             session_value: sessionValue,
-            window_posKordinat_before: window.posKordinat
+            session_value_empty: !sessionValue,
+            window_posKordinat_before: window.posKordinat,
+            window_posKordinat_before_type: typeof window.posKordinat
         });
         
         // Jika window.posKordinat belum punya nilai, gunakan dari session atau input
         if (!window.posKordinat || window.posKordinat === '') {
             if (displayInput && displayInput.value.trim()) {
                 window.posKordinat = displayInput.value.trim();
+                console.log('[SMART_SYNC] Set from display value:', window.posKordinat);
             } else if (sessionValue) {
                 window.posKordinat = sessionValue;
+                console.log('[SMART_SYNC] Set from session value:', window.posKordinat);
+            } else {
+                console.log('[SMART_SYNC] No value to set - both display and session are empty');
             }
         }
         
         // Sinkronkan input display agar selalu sesuai dengan window.posKordinat
         if (displayInput && window.posKordinat && !displayInput.value.trim()) {
             displayInput.value = window.posKordinat;
+            console.log('[SMART_SYNC] Populated display input from window.posKordinat:', window.posKordinat);
         }
         
-        console.log('Smart Sync Complete:', {
+        console.log('[SMART_SYNC] State After:', {
             window_posKordinat_after: window.posKordinat,
-            display_value_final: displayInput ? displayInput.value : 'N/A'
+            display_value_final: displayInput ? displayInput.value : 'ELEMENT_NOT_FOUND'
         });
+        
+        // Add event listener untuk track perubahan
+        if (displayInput) {
+            displayInput.addEventListener('input', function() {
+                console.log('[DISPLAY_INPUT_CHANGE] New value:', this.value);
+            });
+            console.log('[SMART_SYNC] Added input listener to display element');
+        }
     })();
 
     function tampilInfoJarak(response) {
@@ -223,26 +240,44 @@ $total_belanja = 0;
     function pilih_pengiriman(pengiriman){
         var display = document.getElementById('pos_kordinat_pengiriman_display');
         
+        // Detailed debug untuk element
+        var displayCheckResult = {
+            element_exists: display !== null,
+            element_type: display ? display.tagName : 'NOT FOUND',
+            element_value_raw: display ? display.value : 'NOT FOUND',
+            element_value_length: display ? display.value.length : 'NOT FOUND'
+        };
+        
+        console.log('[CHECK_ELEMENT] pos_kordinat_pengiriman_display:', displayCheckResult);
+        
         // Prioritas koordinat: 
         // 1. Nilai dari input display (user input terbaru)
         // 2. Fallback ke window.posKordinat (dari session/cek_konsumen)
         var displayValue = (display && display.value) ? display.value.trim() : '';
         var kordinat = displayValue || (window.posKordinat || '').trim();
         
-        // Debug log
-        console.log('pilih_pengiriman debug:', {
-            pengiriman: pengiriman,
-            display_found: display !== null,
-            display_value: displayValue,
+        // Debug log - SANGAT DETAIL
+        console.log('[PILIH_PENGIRIMAN] Koordinat Debug:', {
+            display_raw_value: display ? display.value : 'NULL',
+            display_trimmed_value: displayValue,
             window_posKordinat: window.posKordinat,
-            final_kordinat: kordinat
+            final_kordinat_value: kordinat,
+            is_empty: !kordinat,
+            length: kordinat.length
         });
         
         // Validasi: jika memilih ongkir_toko dan koordinat kosong, minta input terlebih dahulu
         if (pengiriman === 'ongkir_toko' && !kordinat) {
+            console.warn('[VALIDATION] Koordinat kosong untuk ongkir_toko!', {
+                displayValue: displayValue,
+                window_posKordinat: window.posKordinat,
+                final_kordinat: kordinat
+            });
             notif('bg-warning', 'Mohon masukkan koordinat pengiriman terlebih dahulu');
             return;
         }
+        
+        console.log('[AJAX_SEND] Data yang akan dikirim:', {pengiriman: pengiriman, kordinat_pengiriman: kordinat});
         
         $.ajax({
             url: "<?= route('pos_pilih_pengiriman') ?>",
@@ -252,11 +287,16 @@ $total_belanja = 0;
             },
             dataType: 'JSON',
             data : {pengiriman: pengiriman, kordinat_pengiriman: kordinat},
+            beforeSend: function(xhr) {
+                console.log('[AJAX_BEFORE_SEND] Request headers:', xhr.getAllResponseHeaders());
+            },
             success: function(response) {
+                console.log('[AJAX_SUCCESS] Response:', response);
                 tampilInfoJarak(response);
                 viewKeranjang()
             },
             error: function(xhr) {
+                console.log('[AJAX_ERROR] Error response:', xhr);
                 var msg = xhr.responseText || 'Terjadi kesalahan';
                 notif('bg-danger', msg);
                 viewKeranjang()

@@ -363,6 +363,14 @@ class PosController extends Controller
     {
         App::setLocale(session()->get('locale'));
 
+        // DEBUG: Log semua request data
+        \Log::info('[PilihPengiriman] Incoming request:', [
+            'pengiriman' => $req->pengiriman,
+            'kordinat_pengiriman' => $req->kordinat_pengiriman,
+            'all_inputs' => $req->all(),
+            'headers' => $req->headers->all()
+        ]);
+
         $dataPos = Session::get('POS');
         // return json_encode($dataPos);
 
@@ -375,7 +383,12 @@ class PosController extends Controller
             $kordinat_konsumen = trim($req->kordinat_pengiriman ?? '')
                               ?: ($dataPos['pengiriman']['kordinat_konsumen'] ?? '');
             $dataPos['pengiriman']['kordinat_konsumen'] = $kordinat_konsumen;
-            \Log::info('[PilihPengiriman] kordinat_konsumen: '.$kordinat_konsumen);
+            \Log::info('[PilihPengiriman] Processing ongkir_toko:', [
+                'request_kordinat' => $req->kordinat_pengiriman,
+                'trimmed_kordinat' => trim($req->kordinat_pengiriman ?? ''),
+                'session_kordinat' => $dataPos['pengiriman']['kordinat_konsumen'] ?? '',
+                'final_kordinat_konsumen' => $kordinat_konsumen
+            ]);
             $result = $this->hitungOngkirToko($kordinat_konsumen);
             $dataPos['pengiriman']['ongkir'] = $result['ongkir'];
             $dataPos['pengiriman']['kurir'] = 'ongkir_toko';
