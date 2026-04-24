@@ -193,7 +193,8 @@ $total_belanja = 0;
     }
 
     function pilih_pengiriman(pengiriman){
-        var kordinat = (window.posKordinat || '').trim();
+        var display  = document.getElementById('pos_kordinat_pengiriman_display');
+        var kordinat = display ? display.value.trim() : (window.posKordinat || '').trim();
         $.ajax({
             url: "<?= route('pos_pilih_pengiriman') ?>",
             method: "POST",
@@ -302,7 +303,8 @@ $total_belanja = 0;
 
     function simpan_kordinat() {
         var alamat   = $('#pos_alamat_pengiriman').val().trim();
-        var kordinat = (window.posKordinat || '').trim();
+        var display  = document.getElementById('pos_kordinat_pengiriman_display');
+        var kordinat = display ? display.value.trim() : (window.posKordinat || '').trim();
         $.ajax({
             url: "<?= route('pos_simpan_kordinat') ?>",
             method: "POST",
@@ -354,8 +356,8 @@ $total_belanja = 0;
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             data: {
-                alamat_pengiriman:   $('#pos_alamat_pengiriman').val()   || '',
-                kordinat_pengiriman: $('#pos_kordinat_pengiriman').val() || ''
+                alamat_pengiriman:   ($('#pos_alamat_pengiriman').val()   || '').trim(),
+                kordinat_pengiriman: (function(){ var d = document.getElementById('pos_kordinat_pengiriman_display'); return d ? d.value.trim() : (window.posKordinat||''); })()
             },
             dataType: 'JSON',
             success: function(response) {
