@@ -43,6 +43,18 @@
                                 @endif
                             </p>
 
+                            {{-- Status pembayaran --}}
+                            <p class="mb-0" style="font-size:0.8em">
+                                @php
+                                    $paymentMap = ['belum_bayar' => 'warning', 'lunas' => 'success'];
+                                    $paymentTextMap = ['belum_bayar' => 'Belum Bayar', 'lunas' => 'Lunas'];
+                                    $paymentKey = $row->status_pembayaran ?? null;
+                                    $paymentColor = $paymentMap[$paymentKey] ?? 'secondary';
+                                    $paymentText = $paymentTextMap[$paymentKey] ?? 'Belum Diatur';
+                                @endphp
+                                <span class="badge badge-{{$paymentColor}}">Pembayaran: {{$paymentText}}</span>
+                            </p>
+
                             {{-- Metode & ongkir --}}
                             <p class="mb-0" style="font-size:0.8em">
                                 🚚 {{$row->metode_pengiriman}}
