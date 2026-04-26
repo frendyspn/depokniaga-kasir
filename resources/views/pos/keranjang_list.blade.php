@@ -78,14 +78,10 @@ $total_belanja = 0;
         </li>
         {{-- input kordinat selalu ada di DOM agar bisa dibaca JS, tampil/sembunyi lewat CSS --}}
         <input type="hidden" id="pos_kordinat_pengiriman" value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}">
-        @php echo json_encode($POS) @endphp
+        
         @if(!empty($POS['nama_konsumen']))
         <li>
-            <div style="width:100%; border: 2px solid #ff6b6b; padding: 10px; border-radius: 4px; background-color: #fff5f5; margin-bottom: 10px;">
-                <div style="margin-bottom: 8px;">
-                    <strong style="color: #ff6b6b;">⚠️ PERHATIAN: Isi Koordinat jika pilih Ongkir Toko</strong>
-                    <small style="display: block; color: #666;">Data koordinat diperlukan untuk menghitung biaya pengiriman</small>
-                </div>
+            <div style="width:100%; margin-bottom: 10px;">
                 <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Alamat Pengiriman</label>
                     <textarea class="form-control" id="pos_alamat_pengiriman" rows="3"
