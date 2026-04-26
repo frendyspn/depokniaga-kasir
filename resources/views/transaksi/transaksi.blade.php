@@ -46,8 +46,8 @@
                             {{-- Status pembayaran --}}
                             <p class="mb-0" style="font-size:0.8em">
                                 @php
-                                    $paymentMap = ['belum_bayar' => 'warning', 'lunas' => 'success'];
-                                    $paymentTextMap = ['belum_bayar' => 'Belum Bayar', 'lunas' => 'Lunas'];
+                                    $paymentMap = ['belum_lunas' => 'warning', 'lunas' => 'success'];
+                                    $paymentTextMap = ['belum_lunas' => 'Belum Lunas', 'lunas' => 'Lunas'];
                                     $paymentKey = $row->status_pembayaran ?? null;
                                     $paymentColor = $paymentMap[$paymentKey] ?? 'secondary';
                                     $paymentText = $paymentTextMap[$paymentKey] ?? 'Belum Diatur';

@@ -42,6 +42,24 @@
     ];
     $dtKurir = $dt_kurir ?? null;
     $shipInfo = $dtKurir ? ($shipMap[$dtKurir->status ?? ''] ?? ['label' => $dtKurir->status, 'color' => '#666', 'bg' => '#f0f0f0']) : null;
+
+    // Status pembayaran
+    $paymentRaw = strtolower(trim((string)($dt_header->status_pembayaran ?? '')));
+    $paymentMap = [
+        ''            => ['label' => 'Belum Diatur', 'color' => '#666', 'bg' => '#f0f0f0'],
+        'belum_lunas' => ['label' => 'Belum Lunas',  'color' => '#e65100', 'bg' => '#fff3e0'],
+        'lunas'       => ['label' => 'Lunas',        'color' => '#2e7d32', 'bg' => '#e8f5e9'],
+    ];
+    $paymentInfo = $paymentMap[$paymentRaw] ?? ['label' => ucwords(str_replace('_', ' ', $paymentRaw)), 'color' => '#666', 'bg' => '#f0f0f0'];
+
+    // Koordinat + link maps
+    $kordinatPengiriman = trim((string)($dt_header->kordinat_pengiriman ?? ''));
+    $mapsLink = '';
+    if ($kordinatPengiriman !== '') {
+        $mapsLink = filter_var($kordinatPengiriman, FILTER_VALIDATE_URL)
+            ? $kordinatPengiriman
+            : 'https://www.google.com/maps?q=' . urlencode($kordinatPengiriman);
+    }
 @endphp
 
 <style>
@@ -144,6 +162,18 @@
                     <span class="det-value" style="text-align:right; line-height:1.5">{{ $alamat }}</span>
                 </div>
                 @endif
+                @if($kordinatPengiriman !== '')
+                <div class="det-row" style="align-items:flex-start">
+                    <span class="det-label">Koordinat</span>
+                    <span class="det-value" style="text-align:right; line-height:1.4">
+                        {{ $kordinatPengiriman }}
+                        @if($mapsLink)
+                        <br>
+                        <a href="{{ $mapsLink }}" target="_blank" rel="noopener" style="font-size:12px; color:#1565c0; text-decoration:underline;">Buka di Google Maps</a>
+                        @endif
+                    </span>
+                </div>
+                @endif
                 <div class="det-row">
                     <span class="det-label">Pengiriman</span>
                     <span class="det-value">{{ $metode }}</span>
@@ -238,12 +268,14 @@
             <span class="det-value">{{ $dt_header->metode_pembayaran }}</span>
         </div>
         @endif
-        @if(($dt_header->status_pembayaran ?? null))
         <div class="det-row">
             <span class="det-label">Status</span>
-            <span class="det-value">{{ $dt_header->status_pembayaran }}</span>
+            <span class="det-value">
+                <span class="det-badge" style="color:{{ $paymentInfo['color'] }}; background:{{ $paymentInfo['bg'] }}">
+                    {{ $paymentInfo['label'] }}
+                </span>
+            </span>
         </div>
-        @endif
     </div>
 
     {{-- ── APPS: Confirm / Cancel ── --}}
