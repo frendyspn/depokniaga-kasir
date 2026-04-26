@@ -78,7 +78,7 @@ $total_belanja = 0;
         </li>
         {{-- input kordinat selalu ada di DOM agar bisa dibaca JS, tampil/sembunyi lewat CSS --}}
         <input type="hidden" id="pos_kordinat_pengiriman" value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}">
-
+        @php echo json_encode($POS['pengiriman']) @endphp
         @if(!empty($POS['nama_konsumen']))
         <li>
             <div style="width:100%; border: 2px solid #ff6b6b; padding: 10px; border-radius: 4px; background-color: #fff5f5; margin-bottom: 10px;">
@@ -94,7 +94,7 @@ $total_belanja = 0;
                 <div class="form-group basic" style="margin-bottom:6px">
                     <label class="label">Koordinat Pengiriman <span style="color:red;">*</span></label>
                     <input type="text" class="form-control" id="pos_kordinat_pengiriman_display"
-                        placeholder="-6.123456,106.123456"
+                        placeholder=""
                         value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}"
                         oninput="window.posKordinat = this.value.trim(); console.log('Display input updated:', window.posKordinat);">
                     <small style="color:#666; display:block; margin-top:4px;">Format: lat,lon (contoh: -6.123456,106.789)</small>
