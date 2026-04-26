@@ -78,7 +78,7 @@ $total_belanja = 0;
         </li>
         {{-- input kordinat selalu ada di DOM agar bisa dibaca JS, tampil/sembunyi lewat CSS --}}
         <input type="hidden" id="pos_kordinat_pengiriman" value="{{ $POS['pengiriman']['kordinat_konsumen'] ?? '' }}">
-        @php echo json_encode($POS['pengiriman']) @endphp
+        @php echo json_encode($POS) @endphp
         @if(!empty($POS['nama_konsumen']))
         <li>
             <div style="width:100%; border: 2px solid #ff6b6b; padding: 10px; border-radius: 4px; background-color: #fff5f5; margin-bottom: 10px;">
