@@ -12,6 +12,8 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        // Moota webhook
+        'webhook/moota',
+        // If you expose other webhook endpoints, add them here
     ];
 }
