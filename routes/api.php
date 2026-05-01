@@ -24,3 +24,6 @@ Route::post('/webhook/moota', [PosController::class, 'MootaWebhook']);
 
 // Resend to Moota
 Route::post('/resend-moota', [PosController::class, 'ResendMoota']);
+
+// Get Moota accounts
+Route::get('/moota/accounts', [PosController::class, 'GetMootaAccounts']);
