@@ -357,27 +357,30 @@
 </div>
 
 <div class="modal fade" id="modalResendMoota" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header"><h5 class="modal-title">Pilih Bank untuk Pembayaran</h5></div>
       <div class="modal-body">
-        <div class="form-group">
-          <label>Bank</label>
-          <select id="moota_accounts_select" class="form-control"></select>
+        <div id="moota_accounts_container" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+          <p style="width:100%; text-align:center; color:#666;">Memuat daftar bank...</p>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" id="btnConfirmResend" class="btn btn-primary">Kirim ke Moota</button>
+        <button type="button" id="btnConfirmResend" class="btn btn-primary" disabled>Kirim ke Moota</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+// Store selected bank for resend
+var resend_selected_bank_id = null;
+var resend_selected_bank_name = null;
+
 function openResendModal(idPenjualan) {
-    var sel = document.getElementById('moota_accounts_select');
-    sel.innerHTML = '<option>Memuat...</option>';
+    var container = document.getElementById('moota_accounts_container');
+    container.innerHTML = '<p style="width:100%; text-align:center; color:#666;">Memuat daftar bank...</p>';
     
     fetch('/api/moota/accounts')
         .then(res => {
@@ -393,43 +396,90 @@ function openResendModal(idPenjualan) {
             // Check if error response
             if (data.error) {
                 console.error('[openResendModal] Error response:', data.message, data.attempts);
-                sel.innerHTML = '<option value="">(Error: ' + (data.message || 'Gagal mengambil akun') + ')</option>';
+                container.innerHTML = '<p style="width:100%; color:#c62828;">Error: ' + (data.message || 'Gagal mengambil akun') + '</p>';
                 var modal = new bootstrap.Modal(document.getElementById('modalResendMoota'));
                 modal.show();
                 return;
             }
             
             var accounts = data.accounts || data.data || [];
-            sel.innerHTML = '';
+            container.innerHTML = '';
+            
             if (!accounts || accounts.length === 0) {
-                sel.innerHTML = '<option value="">(Tidak ada akun)</option>';
+                container.innerHTML = '<p style="width:100%; text-align:center; color:#666;">Tidak ada akun bank tersedia</p>';
             } else {
                 accounts.forEach(function(a){
                     var id = a.id ?? a.account_id ?? a.accountId ?? a.code ?? a['account_id'] ?? a['id'];
-                    var label = a.name ?? a.bank_name ?? a.account_name ?? (a['bank_name'] ?? JSON.stringify(a));
-                    var opt = document.createElement('option');
-                    opt.value = id;
-                    opt.text = label + (id ? ' ('+id+')' : '');
-                    sel.appendChild(opt);
+                    var name = a.name ?? a.bank_name ?? a.account_name ?? 'Bank';
+                    var icon = a.icon ?? '';
+                    var accountNum = a.account_number ?? '';
+                    
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-outline-primary';
+                    btn.style.cssText = 'flex:0 1 150px; padding:15px; display:flex; flex-direction:column; align-items:center; gap:8px; border:2px solid; cursor:pointer; transition:all 0.2s';
+                    btn.id = 'resend-bank-btn-' + id;
+                    
+                    var iconHtml = icon ? '<img src="' + icon + '" style="height:30px; width:auto">' : '<i class="fas fa-university" style="font-size:24px"></i>';
+                    var textHtml = '<span style="font-weight:600; font-size:13px; text-align:center">' + name + '</span>';
+                    if (accountNum) textHtml += '<span style="font-size:11px; color:#666">' + accountNum + '</span>';
+                    
+                    btn.innerHTML = iconHtml + textHtml;
+                    
+                    btn.onclick = function(e) {
+                        e.preventDefault();
+                        selectResendBank(id, name, this);
+                    };
+                    
+                    container.appendChild(btn);
                 });
             }
+            
             var modal = new bootstrap.Modal(document.getElementById('modalResendMoota'));
             modal.show();
+            
             document.getElementById('btnConfirmResend').onclick = function(){
                 resendMootaConfirm(idPenjualan);
             };
         })
         .catch(err => {
             console.error('[openResendModal] Fetch error:', err);
-            sel.innerHTML = '<option value="">(Error: Gagal mengambil akun)</option>';
+            container.innerHTML = '<p style="width:100%; color:#c62828;">Error: Gagal mengambil akun</p>';
             var modal = new bootstrap.Modal(document.getElementById('modalResendMoota'));
             modal.show();
         });
 }
 
+function selectResendBank(bankId, bankName, btnElement) {
+    // Update global selections
+    resend_selected_bank_id = bankId;
+    resend_selected_bank_name = bankName;
+    
+    // Update button styling
+    var container = document.getElementById('moota_accounts_container');
+    if (container) {
+        Array.from(container.children).forEach(function(btn){
+            if (btn.classList) {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+                if (btn.style) btn.style.borderColor = '';
+            }
+        });
+    }
+    
+    if (btnElement) {
+        btnElement.classList.remove('btn-outline-primary');
+        btnElement.classList.add('btn-primary');
+        btnElement.style.borderColor = '#0d6efd';
+    }
+    
+    // Enable confirm button
+    var confirmBtn = document.getElementById('btnConfirmResend');
+    if (confirmBtn) confirmBtn.disabled = false;
+}
+
 function resendMootaConfirm(idPenjualan) {
-    var sel = document.getElementById('moota_accounts_select');
-    var accountId = sel ? sel.value : '';
+    var accountId = resend_selected_bank_id;
     if (!accountId) {
         alert('Pilih bank terlebih dahulu');
         return;

@@ -135,9 +135,9 @@ $total_belanja = 0;
 
         <li>
             <strong>Bank Pembayaran</strong>
-            <select id="pos_pilih_bank" class="form-control">
-                <option value="">Pilih Bank...</option>
-            </select>
+            <div id="pos_bank_list" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
+                <p style="width:100%; color:#999; font-size:12px; margin:0">Memuat bank...</p>
+            </div>
         </li>
 
         <li>
@@ -181,6 +181,10 @@ $total_belanja = 0;
         loadMootaBanks();
     });
 
+    // Store selected bank
+    var window_selected_bank_id = null;
+    var window_selected_bank_name = null;
+
     function loadMootaBanks() {
         fetch('/api/moota/accounts')
             .then(res => {
@@ -196,38 +200,79 @@ $total_belanja = 0;
                 // Check if error response
                 if (data.error) {
                     console.error('[loadMootaBanks] Error response:', data.message, data.attempts);
-                    var sel = document.getElementById('pos_pilih_bank');
-                    if (sel) {
-                        sel.innerHTML = '<option value="">(Error: ' + (data.message || 'Gagal mengambil akun') + ')</option>';
+                    var list = document.getElementById('pos_bank_list');
+                    if (list) {
+                        list.innerHTML = '<p style="width:100%; color:#c62828;">Error: ' + (data.message || 'Gagal mengambil akun') + '</p>';
                     }
                     return;
                 }
                 
                 var accounts = data.accounts || data.data || [];
-                var sel = document.getElementById('pos_pilih_bank');
-                if (sel) {
-                    sel.innerHTML = '<option value="">Pilih Bank...</option>';
+                var list = document.getElementById('pos_bank_list');
+                if (list) {
+                    list.innerHTML = '';
                     if (accounts && accounts.length > 0) {
                         accounts.forEach(function(a){
-                            var id = a.id ?? a.account_id ?? a.accountId ?? a.code ?? a['account_id'] ?? a['id'];
-                            var label = a.name ?? a.bank_name ?? a.account_name ?? (a['bank_name'] ?? JSON.stringify(a));
-                            var opt = document.createElement('option');
-                            opt.value = id;
-                            opt.text = label + (id ? ' ('+id+')' : '');
-                            sel.appendChild(opt);
+                            var id = a.id ?? a.account_id ?? a.accountId;
+                            var name = a.name ?? '';
+                            var icon = a.icon ?? '';
+                            var accountNum = a.account_number ?? '';
+                            
+                            var btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'btn btn-outline-primary';
+                            btn.style.cssText = 'flex:1; min-width:150px; padding:15px; display:flex; flex-direction:column; align-items:center; gap:8px; border:2px solid; cursor:pointer; transition:all 0.2s';
+                            btn.id = 'bank-btn-' + id;
+                            
+                            var iconHtml = icon ? '<img src="' + icon + '" style="height:30px; width:auto">' : '<i class="fas fa-university" style="font-size:24px"></i>';
+                            var textHtml = '<span style="font-weight:600; font-size:13px; text-align:center">' + name + '</span>';
+                            if (accountNum) textHtml += '<span style="font-size:11px; color:#666">' + accountNum + '</span>';
+                            
+                            btn.innerHTML = iconHtml + textHtml;
+                            
+                            btn.onclick = function(e) {
+                                e.preventDefault();
+                                selectBank(id, name, this);
+                            };
+                            
+                            list.appendChild(btn);
                         });
                     } else {
-                        sel.innerHTML = '<option value="">(Tidak ada akun bank)</option>';
+                        list.innerHTML = '<p style="width:100%; color:#666;">Tidak ada akun bank tersedia</p>';
                     }
                 }
             })
             .catch(err => {
                 console.error('[loadMootaBanks] Fetch error:', err);
-                var sel = document.getElementById('pos_pilih_bank');
-                if (sel) {
-                    sel.innerHTML = '<option value="">(Error: Gagal mengambil akun)</option>';
+                var list = document.getElementById('pos_bank_list');
+                if (list) {
+                    list.innerHTML = '<p style="width:100%; color:#c62828;">Error: Gagal mengambil akun</p>';
                 }
             });
+    }
+
+    function selectBank(bankId, bankName, btnElement) {
+        // Update global selections
+        window_selected_bank_id = bankId;
+        window_selected_bank_name = bankName;
+        
+        // Update button styling
+        var list = document.getElementById('pos_bank_list');
+        if (list) {
+            Array.from(list.children).forEach(function(btn){
+                if (btn.classList) {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline-primary');
+                    if (btn.style) btn.style.borderColor = '';
+                }
+            });
+        }
+        
+        if (btnElement) {
+            btnElement.classList.remove('btn-outline-primary');
+            btnElement.classList.add('btn-primary');
+            btnElement.style.borderColor = '#0d6efd';
+        }
     }
 
     // Sinkronkan window.posKordinat dengan session value, tapi jangan override jika sudah ada nilai
@@ -498,7 +543,7 @@ $total_belanja = 0;
         var alamat = $('#pos_alamat_pengiriman').val().trim();
         var display = document.getElementById('pos_kordinat_pengiriman_display');
         var kordinat = (display && display.value) ? display.value.trim() : (window.posKordinat || '').trim();
-        var accountId = $('#pos_pilih_bank').val();
+        var accountId = window_selected_bank_id;
 
         if (!alamat) {
             notif('bg-danger', 'Alamat tujuan pengiriman tidak boleh kosong');
