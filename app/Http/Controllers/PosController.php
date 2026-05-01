@@ -970,13 +970,29 @@ class PosController extends Controller
 
     public function GetMootaAccounts(Request $req)
     {
-        $service = new \App\Services\MootaService();
-        $res = $service->getAccounts();
-        if (isset($res['error']) && $res['error']) {
+        try {
+            $service = new \App\Services\MootaService();
+            $res = $service->getAccounts();
+            
+            \Log::info('[GetMootaAccounts] Response: ' . json_encode($res));
+            
+            // Return full response including attempts for debugging
+            if (isset($res['error']) && $res['error']) {
+                http_response_code(400);
+                return response()->json($res);
+            }
+            
+            // Success: return accounts with error=false
+            return response()->json([
+                'error' => false,
+                'accounts' => $res['accounts'] ?? [],
+                'attempts' => $res['attempts'] ?? []
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('[GetMootaAccounts] Exception: ' . $e->getMessage());
             http_response_code(500);
-            return json_encode($res);
+            return response()->json(['error' => true, 'message' => $e->getMessage()]);
         }
-        return json_encode(['error' => false, 'accounts' => $res['accounts'] ?? ($res['data'] ?? $res)]);
     }
 
     private function hitungJarak(string $kordinat1, string $kordinat2): float

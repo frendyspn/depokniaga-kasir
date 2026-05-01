@@ -62,4 +62,61 @@ class MootaService
 
         return ['error' => true, 'message' => 'All endpoints failed', 'attempts' => $attempts];
     }
+
+    /**
+     * Get available accounts from Moota
+     */
+    public function getAccounts()
+    {
+        if (!$this->token) {
+            return ['error' => true, 'message' => 'MOOTA_API_TOKEN not configured'];
+        }
+
+        $endpoints = [
+            '/accounts',
+            '/bank-accounts',
+            '/mutations/accounts'
+        ];
+
+        $attempts = [];
+
+        foreach ($endpoints as $ep) {
+            $url = rtrim($this->baseUrl, '/') . $ep;
+            try {
+                $response = Http::withToken($this->token)
+                    ->acceptJson()
+                    ->get($url);
+
+                $body = $response->json();
+                $attempts[] = ['url' => $url, 'status' => $response->status(), 'body' => $body];
+
+                if ($response->successful()) {
+                    // try to extract accounts from common response paths
+                    if (isset($body['data']) && is_array($body['data'])) {
+                        return ['error' => false, 'accounts' => $body['data'], 'attempts' => $attempts];
+                    }
+                    if (isset($body['accounts']) && is_array($body['accounts'])) {
+                        return ['error' => false, 'accounts' => $body['accounts'], 'attempts' => $attempts];
+                    }
+                    if (is_array($body) && count($body) > 0) {
+                        return ['error' => false, 'accounts' => $body, 'attempts' => $attempts];
+                    }
+                    return ['error' => false, 'accounts' => [], 'attempts' => $attempts];
+                }
+
+                // if 404 continue to next endpoint
+                if ($response->status() === 404) {
+                    continue;
+                }
+
+                // other non-success -> return with attempts
+                return ['error' => true, 'status' => $response->status(), 'body' => $body, 'attempts' => $attempts];
+            } catch (\Exception $e) {
+                $attempts[] = ['url' => $url, 'exception' => $e->getMessage()];
+                continue;
+            }
+        }
+
+        return ['error' => true, 'message' => 'All endpoints failed', 'attempts' => $attempts];
+    }
 }

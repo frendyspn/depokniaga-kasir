@@ -380,8 +380,25 @@ function openResendModal(idPenjualan) {
     sel.innerHTML = '<option>Memuat...</option>';
     
     fetch('/api/moota/accounts')
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                console.error('HTTP Error:', res.status, res.statusText);
+                throw new Error('HTTP ' + res.status);
+            }
+            return res.json();
+        })
         .then(data => {
+            console.log('[openResendModal] Response data:', data);
+            
+            // Check if error response
+            if (data.error) {
+                console.error('[openResendModal] Error response:', data.message, data.attempts);
+                sel.innerHTML = '<option value="">(Error: ' + (data.message || 'Gagal mengambil akun') + ')</option>';
+                var modal = new bootstrap.Modal(document.getElementById('modalResendMoota'));
+                modal.show();
+                return;
+            }
+            
             var accounts = data.accounts || data.data || [];
             sel.innerHTML = '';
             if (!accounts || accounts.length === 0) {
@@ -403,8 +420,10 @@ function openResendModal(idPenjualan) {
             };
         })
         .catch(err => {
-            alert('Gagal mengambil daftar akun Moota');
-            console.error(err);
+            console.error('[openResendModal] Fetch error:', err);
+            sel.innerHTML = '<option value="">(Error: Gagal mengambil akun)</option>';
+            var modal = new bootstrap.Modal(document.getElementById('modalResendMoota'));
+            modal.show();
         });
 }
 

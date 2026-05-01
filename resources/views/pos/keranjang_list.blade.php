@@ -183,8 +183,26 @@ $total_belanja = 0;
 
     function loadMootaBanks() {
         fetch('/api/moota/accounts')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    console.error('HTTP Error:', res.status, res.statusText);
+                    throw new Error('HTTP ' + res.status);
+                }
+                return res.json();
+            })
             .then(data => {
+                console.log('[loadMootaBanks] Response data:', data);
+                
+                // Check if error response
+                if (data.error) {
+                    console.error('[loadMootaBanks] Error response:', data.message, data.attempts);
+                    var sel = document.getElementById('pos_pilih_bank');
+                    if (sel) {
+                        sel.innerHTML = '<option value="">(Error: ' + (data.message || 'Gagal mengambil akun') + ')</option>';
+                    }
+                    return;
+                }
+                
                 var accounts = data.accounts || data.data || [];
                 var sel = document.getElementById('pos_pilih_bank');
                 if (sel) {
@@ -198,10 +216,18 @@ $total_belanja = 0;
                             opt.text = label + (id ? ' ('+id+')' : '');
                             sel.appendChild(opt);
                         });
+                    } else {
+                        sel.innerHTML = '<option value="">(Tidak ada akun bank)</option>';
                     }
                 }
             })
-            .catch(err => console.error('Failed to load Moota accounts:', err));
+            .catch(err => {
+                console.error('[loadMootaBanks] Fetch error:', err);
+                var sel = document.getElementById('pos_pilih_bank');
+                if (sel) {
+                    sel.innerHTML = '<option value="">(Error: Gagal mengambil akun)</option>';
+                }
+            });
     }
 
     // Sinkronkan window.posKordinat dengan session value, tapi jangan override jika sudah ada nilai
