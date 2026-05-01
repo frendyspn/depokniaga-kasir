@@ -278,6 +278,34 @@
         </div>
     </div>
 
+    {{-- ── Moota Payment Status ── --}}
+    @if(($dt_header->moota_status ?? null) !== null)
+    <p class="det-section-label">Moota Payment</p>
+    <div class="det-card">
+        <div class="det-row">
+            <span class="det-label">Status</span>
+            <span class="det-value">
+                <span class="det-badge" style="color:{{ ($dt_header->moota_status === 'success' ? '#2e7d32' : '#c62828') }}; background:{{ ($dt_header->moota_status === 'success' ? '#e8f5e9' : '#ffebee') }}">
+                    {{ ucfirst($dt_header->moota_status) }}
+                </span>
+            </span>
+        </div>
+        @if($dt_header->moota_transaction_id ?? null)
+        <div class="det-row">
+            <span class="det-label">Transaction ID</span>
+            <span class="det-value" style="font-size:12px; word-break:break-all">{{ $dt_header->moota_transaction_id }}</span>
+        </div>
+        @endif
+        @if($dt_header->moota_status === 'error')
+        <div class="det-row" style="border-top:1px solid #f4f4f4; padding-top:12px">
+            <button class="btn btn-sm btn-warning" style="width:100%" onclick="resendMoota({{ $dt_header->id_penjualan }})">
+                <i class="fab fa-wordpress-simple"></i> Resend to Moota
+            </button>
+        </div>
+        @endif
+    </div>
+    @endif
+
     {{-- ── APPS: Confirm / Cancel ── --}}
     @if(($dt_header->source ?? '') == 'APPS' && ($dt_header->status ?? '') == 'PENDING')
     <div class="det-card" style="padding:12px 16px">
@@ -327,5 +355,33 @@
     @endif
 
 </div>
+
+<script>
+function resendMoota(idPenjualan) {
+    if (!confirm('Resend transaksi ini ke Moota?')) return;
+    
+    $.ajax({
+        url: '/api/resend-moota',
+        method: 'POST',
+        data: {
+            id_penjualan: idPenjualan,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            const res = JSON.parse(response);
+            alert('Berhasil resend ke Moota');
+            location.reload();
+        },
+        error: function(xhr) {
+            try {
+                const res = JSON.parse(xhr.responseText);
+                alert('Error: ' + (res.message || 'Gagal resend ke Moota'));
+            } catch {
+                alert('Error: Gagal resend ke Moota');
+            }
+        }
+    });
+}
+</script>
 
 @endsection
