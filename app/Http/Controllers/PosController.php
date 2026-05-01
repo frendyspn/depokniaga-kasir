@@ -742,15 +742,6 @@ class PosController extends Controller
             $insertMaster['proses'] = '1';
         } 
 
-        // CREDIT
-        if (($dtPos['bayar'] - $totalBelanja) < 0) {
-            if ($dtPos['tipe_konsumen'] == 'umum') {
-                http_response_code(400);
-                exit(json_encode(__('bahasa.notif_konsumen_umum_tidak_bisa_kredit')));
-            }
-            
-        }
-
         // Pre-load fee kategori untuk semua produk di keranjang (1 query)
         $idProdukList = array_column($dtKeranjang, 'id_produk');
         $kategoriFeeMap = DB::table('rb_produk as p')
