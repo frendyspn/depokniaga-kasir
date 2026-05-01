@@ -297,8 +297,8 @@
         </div>
         @endif
         @if($dt_header->moota_status === 'error')
-        <div class="det-row" style="border-top:1px solid #f4f4f4; padding-top:12px">
-            <button class="btn btn-sm btn-warning" style="width:100%" onclick="resendMoota({{ $dt_header->id_penjualan }})">
+        <div class="det-row" style="border-top:1px solid #f4f4f4; padding-top:12px; margin-bottom:12px">
+            <button class="btn btn-sm btn-warning mb-2" style="width:100%" onclick="resendMoota({{ $dt_header->id_penjualan }})">
                 <i class="fab fa-wordpress-simple"></i> Resend to Moota
             </button>
         </div>

@@ -877,7 +877,7 @@ class PosController extends Controller
 
         // Ambil detail produk
         $dtKeranjang = DB::table('rb_penjualan_detail as pd')
-            ->select('pd.id_produk', 'pd.qty', 'pd.harga', 'p.nama_produk')
+            ->select('pd.id_produk', 'pd.jumlah', 'pd.harga_jual', 'p.nama_produk')
             ->leftJoin('rb_produk as p', 'p.id_produk', 'pd.id_produk')
             ->where('pd.id_penjualan', $id_penjualan)
             ->get();
@@ -891,12 +891,14 @@ class PosController extends Controller
         $items = [];
         $totalBelanja = 0;
         foreach ($dtKeranjang as $item) {
+            $qty = (int) ($item->jumlah ?? 0);
+            $price = (int) ($item->harga_jual ?? 0);
             $items[] = [
                 'name' => $item->nama_produk,
-                'quantity' => $item->qty,
-                'price' => (int) $item->harga
+                'quantity' => $qty,
+                'price' => $price
             ];
-            $totalBelanja += $item->qty * $item->harga;
+            $totalBelanja += $qty * $price;
         }
 
         $payload = [
