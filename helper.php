@@ -8,6 +8,18 @@ use App\Services\OneSignalService;
 if (!function_exists('kirim_wa')) {
     function kirim_wa($user_no_hp, $pesan, $sts = 1)
     {
+        $user_no_hp = trim((string) $user_no_hp);
+        $user_no_hp = preg_replace('/[^0-9]/', '', $user_no_hp);
+
+        if ($user_no_hp === '') {
+            return false;
+        }
+
+        if (substr($user_no_hp, 0, 1) === '0') {
+            $user_no_hp = '62' . substr($user_no_hp, 1);
+        } elseif (substr($user_no_hp, 0, 2) !== '62') {
+            $user_no_hp = '62' . $user_no_hp;
+        }
 
         // Watzup Start
         // 		$num_key = "oQbP6ITZ6ZN51vnU";
@@ -74,18 +86,18 @@ if (!function_exists('kirim_wa')) {
         ));
 
         $response = curl_exec($curl);
+        $curlError = curl_error($curl);
 
         curl_close($curl);
 
 
         $dtInsert['nomor'] = $user_no_hp;
-        $dtInsert['response'] = $response;
+        $dtInsert['response'] = $response ?: $curlError;
         $dtInsert['number_key'] = $num_key;
         $dtInsert['pesan'] = $pesan;
         $dtInsert['created_at'] = date('Y-m-d H:i:s');
         DB::table('wa_response')->insert($dtInsert);
-        return;
-        // return $response;
+        return $response ?: $curlError;
     }
 }
 

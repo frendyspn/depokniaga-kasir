@@ -69,6 +69,7 @@ Route::get('/pos_finish', [PosController::class, 'PosFinish'])->name('pos_finish
 Route::post('/pos_simpan_kordinat', [PosController::class, 'SimpanKordinat'])->name('pos_simpan_kordinat');
 Route::post('/transaksi/save-moota-bank', [PosController::class, 'SaveMootaBank'])->name('transaksi_save_moota_bank');
 Route::get('/transaksi/public/{token}', [PosController::class, 'PublicTransaksi'])->name('transaksi.public');
+Route::post('/transaksi/public/{token}/bayar', [PosController::class, 'PublicTransaksiBayar'])->name('transaksi.public_bayar');
 Route::post('/pos_scan_barcode', [PosController::class, 'ScanBarcode'])->name('pos_scan_barcode');
 Route::post('/pos_list_barang', [PosController::class, 'ViewListBarang'])->name('pos_list_barang');
 
