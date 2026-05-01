@@ -798,7 +798,7 @@ class PosController extends Controller
 
                 $payload = [
                     'order_id' => $kode_transaksi,
-                    'account_id' => env('MOOTA_ACCOUNT_ID', ''),
+                    'account_id' => $req->account_id ?? env('MOOTA_ACCOUNT_ID', ''),
                     'customers' => [
                         'name' => $dtPos['nama_konsumen'] ?? '',
                         'phone' => $dtPos['no_konsumen'] ?? ''
@@ -909,7 +909,7 @@ class PosController extends Controller
 
         $payload = [
             'order_id' => $txn->kode_transaksi,
-            'account_id' => env('MOOTA_ACCOUNT_ID', ''),
+            'account_id' => $req->input('account_id') ?? env('MOOTA_ACCOUNT_ID', ''),
             'customers' => [
                 'name' => $txn->nama_pembeli ?? ($txn->nama_lengkap ?? ''),
                 'phone' => $txn->no_pembeli ?? ($txn->no_hp ?? '')
@@ -966,6 +966,17 @@ class PosController extends Controller
             http_response_code(500);
             return json_encode(['error' => true, 'message' => 'Exception: '.$e->getMessage()]);
         }
+    }
+
+    public function GetMootaAccounts(Request $req)
+    {
+        $service = new \App\Services\MootaService();
+        $res = $service->getAccounts();
+        if (isset($res['error']) && $res['error']) {
+            http_response_code(500);
+            return json_encode($res);
+        }
+        return json_encode(['error' => false, 'accounts' => $res['accounts'] ?? ($res['data'] ?? $res)]);
     }
 
     private function hitungJarak(string $kordinat1, string $kordinat2): float
