@@ -198,10 +198,11 @@ class PosController extends Controller
     public function AddKeranjang(Request $req)
     {
         $dataPos = Session::get('POS');
-        if($dataPos['id_konsumen'] <= 0){
-            http_response_code(404);
-            exit(json_encode(['Message' => 'Konsumen Belum Diinput']));
-            return;
+        if (!is_array($dataPos)) {
+            $dataPos = [];
+        }
+        if (!isset($dataPos['id_konsumen'])) {
+            $dataPos['id_konsumen'] = 0;
         }
         $now = date('Y-m-d');
         $resellerPaket = DB::table('rb_reseller_paket as a')
@@ -424,10 +425,11 @@ class PosController extends Controller
     public function EditBarangKeranjang(Request $req)
     {
         $dataPos = Session::get('POS');
-        if($dataPos['id_konsumen'] <= 0){
-            http_response_code(404);
-            exit(json_encode(['Message' => 'Konsumen Belum Diinput']));
-            return;
+        if (!is_array($dataPos)) {
+            $dataPos = [];
+        }
+        if (!isset($dataPos['id_konsumen'])) {
+            $dataPos['id_konsumen'] = 0;
         }
         $now = date('Y-m-d');
         $resellerPaket = DB::table('rb_reseller_paket as a')
@@ -716,6 +718,11 @@ class PosController extends Controller
 
         $alamat_pengiriman   = $req->alamat_pengiriman   ?? ($dtPos['pengiriman']['alamat_antar']       ?? '');
         $kordinat_pengiriman = $req->kordinat_pengiriman ?? ($dtPos['pengiriman']['kordinat_konsumen'] ?? '');
+
+        if (trim($alamat_pengiriman) === '' || trim($kordinat_pengiriman) === '') {
+            http_response_code(400);
+            exit(json_encode('Alamat dan koordinat pengiriman harus diisi'));
+        }
 
         $insertMaster['kode_transaksi'] = 'POS-'.time();
         $insertMaster['id_pembeli'] = $dtPos['id_konsumen'];

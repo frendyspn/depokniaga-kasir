@@ -443,12 +443,18 @@ $total_belanja = 0;
 
     function bayar() {
         var kurir = $('#pos_pengiriman').val();
-        if (kurir === 'ongkir_toko') {
-            var alamat = $('#pos_alamat_pengiriman').val().trim();
-            if (!alamat) {
-                notif('bg-danger', 'Alamat tujuan pengiriman tidak boleh kosong');
-                return;
-            }
+        var alamat = $('#pos_alamat_pengiriman').val().trim();
+        var display = document.getElementById('pos_kordinat_pengiriman_display');
+        var kordinat = (display && display.value) ? display.value.trim() : (window.posKordinat || '').trim();
+
+        if (!alamat) {
+            notif('bg-danger', 'Alamat tujuan pengiriman tidak boleh kosong');
+            return;
+        }
+
+        if (!kordinat) {
+            notif('bg-danger', 'Koordinat pengiriman tidak boleh kosong');
+            return;
         }
 
         $('#DialogLoading').modal('show')
@@ -459,8 +465,8 @@ $total_belanja = 0;
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             data: {
-                alamat_pengiriman:   ($('#pos_alamat_pengiriman').val()   || '').trim(),
-                kordinat_pengiriman: (function(){ var d = document.getElementById('pos_kordinat_pengiriman_display'); return d ? d.value.trim() : (window.posKordinat||''); })()
+                alamat_pengiriman: alamat,
+                kordinat_pengiriman: kordinat
             },
             dataType: 'JSON',
             success: function(response) {
