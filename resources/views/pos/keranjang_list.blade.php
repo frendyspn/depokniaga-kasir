@@ -141,13 +141,6 @@ $total_belanja = 0;
         </li>
 
         <li>
-            <strong>Bank Pembayaran</strong>
-            <div id="pos_bank_list" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
-                <p style="width:100%; color:#999; font-size:12px; margin:0">Memuat bank...</p>
-            </div>
-        </li>
-
-        <li>
             <button class="btn btn-primary btn-block print-hide" onclick="bayar()">{{strtoupper(__('bahasa.pembayaran'))}}</button>
         </li>
     </ul>
@@ -183,100 +176,6 @@ $total_belanja = 0;
 
 
 <script>
-    // Load Moota bank accounts on page init
-    document.addEventListener('DOMContentLoaded', function(){
-        loadMootaBanks();
-    });
-
-    // Store selected bank
-    var window_selected_bank_id = null;
-    var window_selected_bank_name = null;
-
-    function loadMootaBanks() {
-        fetch('/api/moota/accounts')
-            .then(res => {
-                if (!res.ok) {
-                    console.error('HTTP Error:', res.status, res.statusText);
-                    throw new Error('HTTP ' + res.status);
-                }
-                return res.json();
-            })
-            .then(data => {
-                console.log('[loadMootaBanks] Response data:', data);
-                
-                // Check if error response
-                if (data.error) {
-                    console.error('[loadMootaBanks] Error response:', data.message, data.attempts);
-                    var list = document.getElementById('pos_bank_list');
-                    if (list) {
-                        list.innerHTML = '<p style="width:100%; color:#c62828;">Error: ' + (data.message || 'Gagal mengambil akun') + '</p>';
-                    }
-                    return;
-                }
-                
-                var accounts = data.accounts || data.data || [];
-                var list = document.getElementById('pos_bank_list');
-                if (list) {
-                    list.innerHTML = '';
-                    if (accounts && accounts.length > 0) {
-                        // render as card buttons
-                        list.classList.add('moota-bank-list');
-                        accounts.forEach(function(a){
-                            var id = a.id ?? a.account_id ?? a.accountId;
-                            var name = a.name ?? '';
-                            var icon = a.icon ?? '';
-                            var accountNum = a.account_number ?? '';
-
-                            var btn = document.createElement('button');
-                            btn.type = 'button';
-                            btn.className = 'moota-bank-btn';
-                            btn.id = 'bank-btn-' + id;
-
-                            var iconHtml = icon ? '<img src="' + icon + '" alt="icon">' : '<i class="fas fa-university" style="font-size:24px"></i>';
-                            var textHtml = '<span style="font-weight:600; font-size:13px; text-align:center">' + name + '</span>';
-                            if (accountNum) textHtml += '<span class="account-num">' + accountNum + '</span>';
-
-                            btn.innerHTML = iconHtml + textHtml;
-
-                            btn.onclick = function(e) {
-                                e.preventDefault();
-                                selectBank(id, name, this);
-                            };
-
-                            list.appendChild(btn);
-                        });
-                    } else {
-                        list.innerHTML = '<p style="width:100%; color:#666;">Tidak ada akun bank tersedia</p>';
-                    }
-                }
-            })
-            .catch(err => {
-                console.error('[loadMootaBanks] Fetch error:', err);
-                var list = document.getElementById('pos_bank_list');
-                if (list) {
-                    list.innerHTML = '<p style="width:100%; color:#c62828;">Error: Gagal mengambil akun</p>';
-                }
-            });
-    }
-
-    function selectBank(bankId, bankName, btnElement) {
-        // Update global selections
-        window_selected_bank_id = bankId;
-        window_selected_bank_name = bankName;
-        
-        // Update button styling
-        var list = document.getElementById('pos_bank_list');
-        if (list) {
-            Array.from(list.children).forEach(function(btn){
-                btn.classList && btn.classList.remove('selected');
-            });
-        }
-
-        if (btnElement) {
-            btnElement.classList.add('selected');
-        }
-    }
-
     // Sinkronkan window.posKordinat dengan session value, tapi jangan override jika sudah ada nilai
     // Prioritas: window.posKordinat > input display value > session value
     (function(){
@@ -541,11 +440,9 @@ $total_belanja = 0;
     }
 
     function bayar() {
-        var kurir = $('#pos_pengiriman').val();
         var alamat = $('#pos_alamat_pengiriman').val().trim();
         var display = document.getElementById('pos_kordinat_pengiriman_display');
         var kordinat = (display && display.value) ? display.value.trim() : (window.posKordinat || '').trim();
-        var accountId = window_selected_bank_id;
 
         if (!alamat) {
             notif('bg-danger', 'Alamat tujuan pengiriman tidak boleh kosong');
@@ -554,11 +451,6 @@ $total_belanja = 0;
 
         if (!kordinat) {
             notif('bg-danger', 'Koordinat pengiriman tidak boleh kosong');
-            return;
-        }
-
-        if (!accountId) {
-            notif('bg-danger', 'Pilih bank pembayaran terlebih dahulu');
             return;
         }
 
@@ -572,7 +464,6 @@ $total_belanja = 0;
             data: {
                 alamat_pengiriman: alamat,
                 kordinat_pengiriman: kordinat,
-                account_id: accountId
             },
             dataType: 'JSON',
             success: function(response) {
