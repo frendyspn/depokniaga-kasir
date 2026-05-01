@@ -25,17 +25,43 @@ class MootaService
             return ['error' => true, 'message' => 'MOOTA_API_TOKEN not configured'];
         }
 
-        $url = rtrim($this->baseUrl, '/') . '/mutations/create-transaction';
+        // Try primary endpoint and a few fallbacks if provider returns 404
+        $endpoints = [
+            '/mutations/create-transaction',
+            '/mutations/create-transaction/create',
+            '/transactions/create'
+        ];
 
-        try {
-            $response = Http::withToken($this->token)
-                ->acceptJson()
-                ->post($url, $data);
+        $attempts = [];
 
-            $body = $response->json();
-            return ['error' => !$response->successful(), 'status' => $response->status(), 'body' => $body];
-        } catch (\Exception $e) {
-            return ['error' => true, 'message' => $e->getMessage()];
+        foreach ($endpoints as $ep) {
+            $url = rtrim($this->baseUrl, '/') . $ep;
+            try {
+                $response = Http::withToken($this->token)
+                    ->acceptJson()
+                    ->post($url, $data);
+
+                $body = $response->json();
+                $attempts[] = ['url' => $url, 'status' => $response->status(), 'body' => $body];
+
+                if ($response->successful()) {
+                    return ['error' => false, 'status' => $response->status(), 'body' => $body, 'attempts' => $attempts];
+                }
+
+                // if 404 continue to next endpoint
+                if ($response->status() === 404) {
+                    continue;
+                }
+
+                // other non-success -> return with attempts
+                return ['error' => true, 'status' => $response->status(), 'body' => $body, 'attempts' => $attempts];
+            } catch (\Exception $e) {
+                $attempts[] = ['url' => $url, 'exception' => $e->getMessage()];
+                // continue to try next endpoint
+                continue;
+            }
         }
+
+        return ['error' => true, 'message' => 'All endpoints failed', 'attempts' => $attempts];
     }
 }

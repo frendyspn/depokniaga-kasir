@@ -921,6 +921,20 @@ class PosController extends Controller
                     'moota_payload' => json_encode($res['body']),
                     'moota_status' => 'success'
                 ]);
+                // send WA to customer informing that Moota transaction is created
+                try {
+                    $phone = $txn->no_pembeli ?? $txn->no_hp ?? null;
+                    $nama  = $txn->nama_pembeli ?? ($txn->nama_lengkap ?? '');
+                    $kode  = $txn->kode_transaksi ?? '';
+                    if ($phone) {
+                        $pesan = "Halo {$nama}, transaksi {$kode} berhasil dikirim ke Moota. ID: {$moota_id}. Silakan cek metode pembayaran yang tersedia untuk menyelesaikan pembayaran.";
+                        if (function_exists('kirim_wa')) {
+                            kirim_wa($phone, $pesan);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('[ResendMoota] WA send failed: '.$e->getMessage());
+                }
                 http_response_code(200);
                 return json_encode(['error' => false, 'message' => 'Berhasil resend ke Moota', 'moota_id' => $moota_id]);
             } else {
