@@ -798,7 +798,7 @@ class PosController extends Controller
 
                 $payload = [
                     'order_id' => $kode_transaksi,
-                    'account_id' => $req->account_id ?? env('MOOTA_ACCOUNT_ID', ''),
+                    'account_id' => env('MOOTA_ACCOUNT_ID', ''),
                     'customers' => [
                         'name' => $dtPos['nama_konsumen'] ?? '',
                         'phone' => $dtPos['no_konsumen'] ?? ''

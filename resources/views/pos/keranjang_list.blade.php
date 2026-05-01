@@ -134,6 +134,13 @@ $total_belanja = 0;
         </li>
 
         <li>
+            <strong>Bank Pembayaran</strong>
+            <select id="pos_pilih_bank" class="form-control">
+                <option value="">Pilih Bank...</option>
+            </select>
+        </li>
+
+        <li>
             <button class="btn btn-primary btn-block print-hide" onclick="bayar()">{{strtoupper(__('bahasa.pembayaran'))}}</button>
         </li>
     </ul>
@@ -169,6 +176,34 @@ $total_belanja = 0;
 
 
 <script>
+    // Load Moota bank accounts on page init
+    document.addEventListener('DOMContentLoaded', function(){
+        loadMootaBanks();
+    });
+
+    function loadMootaBanks() {
+        fetch('/api/moota/accounts')
+            .then(res => res.json())
+            .then(data => {
+                var accounts = data.accounts || data.data || [];
+                var sel = document.getElementById('pos_pilih_bank');
+                if (sel) {
+                    sel.innerHTML = '<option value="">Pilih Bank...</option>';
+                    if (accounts && accounts.length > 0) {
+                        accounts.forEach(function(a){
+                            var id = a.id ?? a.account_id ?? a.accountId ?? a.code ?? a['account_id'] ?? a['id'];
+                            var label = a.name ?? a.bank_name ?? a.account_name ?? (a['bank_name'] ?? JSON.stringify(a));
+                            var opt = document.createElement('option');
+                            opt.value = id;
+                            opt.text = label + (id ? ' ('+id+')' : '');
+                            sel.appendChild(opt);
+                        });
+                    }
+                }
+            })
+            .catch(err => console.error('Failed to load Moota accounts:', err));
+    }
+
     // Sinkronkan window.posKordinat dengan session value, tapi jangan override jika sudah ada nilai
     // Prioritas: window.posKordinat > input display value > session value
     (function(){
@@ -437,6 +472,7 @@ $total_belanja = 0;
         var alamat = $('#pos_alamat_pengiriman').val().trim();
         var display = document.getElementById('pos_kordinat_pengiriman_display');
         var kordinat = (display && display.value) ? display.value.trim() : (window.posKordinat || '').trim();
+        var accountId = $('#pos_pilih_bank').val();
 
         if (!alamat) {
             notif('bg-danger', 'Alamat tujuan pengiriman tidak boleh kosong');
@@ -445,6 +481,11 @@ $total_belanja = 0;
 
         if (!kordinat) {
             notif('bg-danger', 'Koordinat pengiriman tidak boleh kosong');
+            return;
+        }
+
+        if (!accountId) {
+            notif('bg-danger', 'Pilih bank pembayaran terlebih dahulu');
             return;
         }
 
@@ -457,12 +498,12 @@ $total_belanja = 0;
             },
             data: {
                 alamat_pengiriman: alamat,
-                kordinat_pengiriman: kordinat
+                kordinat_pengiriman: kordinat,
+                account_id: accountId
             },
             dataType: 'JSON',
             success: function(response) {
                 console.log(response)
-                // return
                 $('#DialogLoading').modal('hide')
 
                 var printContents = document.getElementById('keranjang_view').innerHTML;

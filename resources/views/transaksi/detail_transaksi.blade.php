@@ -356,9 +356,73 @@
 
 </div>
 
+<div class="modal fade" id="modalResendMoota" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Pilih Bank untuk Pembayaran</h5></div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Bank</label>
+          <select id="moota_accounts_select" class="form-control"></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" id="btnConfirmResend" class="btn btn-primary">Kirim ke Moota</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-function resendMoota(idPenjualan) {
+function openResendModal(idPenjualan) {
+    var sel = document.getElementById('moota_accounts_select');
+    sel.innerHTML = '<option>Memuat...</option>';
+    
+    fetch('/api/moota/accounts')
+        .then(res => res.json())
+        .then(data => {
+            var accounts = data.accounts || data.data || [];
+            sel.innerHTML = '';
+            if (!accounts || accounts.length === 0) {
+                sel.innerHTML = '<option value="">(Tidak ada akun)</option>';
+            } else {
+                accounts.forEach(function(a){
+                    var id = a.id ?? a.account_id ?? a.accountId ?? a.code ?? a['account_id'] ?? a['id'];
+                    var label = a.name ?? a.bank_name ?? a.account_name ?? (a['bank_name'] ?? JSON.stringify(a));
+                    var opt = document.createElement('option');
+                    opt.value = id;
+                    opt.text = label + (id ? ' ('+id+')' : '');
+                    sel.appendChild(opt);
+                });
+            }
+            var modal = new bootstrap.Modal(document.getElementById('modalResendMoota'));
+            modal.show();
+            document.getElementById('btnConfirmResend').onclick = function(){
+                resendMootaConfirm(idPenjualan);
+            };
+        })
+        .catch(err => {
+            alert('Gagal mengambil daftar akun Moota');
+            console.error(err);
+        });
+}
+
+function resendMootaConfirm(idPenjualan) {
+    var sel = document.getElementById('moota_accounts_select');
+    var accountId = sel ? sel.value : '';
+    if (!accountId) {
+        alert('Pilih bank terlebih dahulu');
+        return;
+    }
+    var modal = bootstrap.Modal.getInstance(document.getElementById('modalResendMoota'));
+    if (modal) modal.hide();
+    resendMoota(idPenjualan, accountId);
+}
+
+function resendMoota(idPenjualan, accountId) {
     if (!confirm('Resend transaksi ini ke Moota?')) return;
+    
     var btn = document.getElementById('resend-moota-' + idPenjualan);
     var originalHtml = btn ? btn.innerHTML : null;
     if (btn) {
@@ -371,6 +435,7 @@ function resendMoota(idPenjualan) {
         method: 'POST',
         data: {
             id_penjualan: idPenjualan,
+            account_id: accountId,
             _token: $('meta[name="csrf-token"]').attr('content')
         },
         success: function(response) {
