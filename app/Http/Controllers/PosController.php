@@ -787,16 +787,22 @@ class PosController extends Controller
                 $kode_transaksi = $insertMaster['kode_transaksi'];
                 $items = [];
                 for ($k = 0; $k < count($dtKeranjang); $k++) {
+                    $qtyItem = (int) ($dtKeranjang[$k]['qty'] ?? 0);
+                    $unitPrice = (int) ($dtKeranjang[$k]['harga_konsumen'] ?? 0);
                     $items[] = [
                         'name' => $dtKeranjang[$k]['nama_produk'],
-                        'price' => (int) $dtKeranjang[$k]['harga_konsumen'] * (int) $dtKeranjang[$k]['qty']
+                        'price' => $unitPrice,
+                        'qty' => $qtyItem
                     ];
                 }
 
                 $payload = [
                     'order_id' => $kode_transaksi,
                     'account_id' => env('MOOTA_ACCOUNT_ID', ''),
-                    'customers' => json_encode(['name' => $dtPos['nama_konsumen'] ?? '', 'phone' => $dtPos['no_konsumen'] ?? '']),
+                    'customers' => [
+                        'name' => $dtPos['nama_konsumen'] ?? '',
+                        'phone' => $dtPos['no_konsumen'] ?? ''
+                    ],
                     'items' => $items,
                     'total' => (int) $totalBelanja,
                     'expired_in_minutes' => 60
@@ -904,8 +910,18 @@ class PosController extends Controller
         $payload = [
             'order_id' => $txn->kode_transaksi,
             'account_id' => env('MOOTA_ACCOUNT_ID', ''),
-            'customers' => json_encode(['name' => $txn->nama_pembeli ?? '', 'phone' => $txn->no_pembeli ?? '']),
-            'items' => $items,
+            'customers' => [
+                'name' => $txn->nama_pembeli ?? ($txn->nama_lengkap ?? ''),
+                'phone' => $txn->no_pembeli ?? ($txn->no_hp ?? '')
+            ],
+            'items' => array_map(function($it){
+                // ensure required fields
+                return [
+                    'name' => $it['name'] ?? ($it['nama_produk'] ?? ''),
+                    'price' => (int) ($it['price'] ?? $it['harga_jual'] ?? 0),
+                    'qty' => (int) ($it['qty'] ?? $it['jumlah'] ?? 1)
+                ];
+            }, $items),
             'total' => (int) $totalBelanja,
             'expired_in_minutes' => 60
         ];

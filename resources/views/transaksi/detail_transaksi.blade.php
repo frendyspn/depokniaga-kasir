@@ -298,7 +298,7 @@
         @endif
         @if($dt_header->moota_status === 'error')
         <div class="det-row" style="border-top:1px solid #f4f4f4; padding-top:12px; margin-bottom:12px">
-            <button class="btn btn-sm btn-warning mb-2" style="width:100%" onclick="resendMoota({{ $dt_header->id_penjualan }})">
+            <button id="resend-moota-{{ $dt_header->id_penjualan }}" class="btn btn-sm btn-warning mb-2" style="width:100%" onclick="resendMoota({{ $dt_header->id_penjualan }})">
                 <i class="fab fa-wordpress-simple"></i> Resend to Moota
             </button>
         </div>
@@ -359,7 +359,13 @@
 <script>
 function resendMoota(idPenjualan) {
     if (!confirm('Resend transaksi ini ke Moota?')) return;
-    
+    var btn = document.getElementById('resend-moota-' + idPenjualan);
+    var originalHtml = btn ? btn.innerHTML : null;
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Mengirim...';
+    }
+
     $.ajax({
         url: '/api/resend-moota',
         method: 'POST',
@@ -368,15 +374,21 @@ function resendMoota(idPenjualan) {
             _token: $('meta[name="csrf-token"]').attr('content')
         },
         success: function(response) {
-            const res = JSON.parse(response);
+            try {
+                var res = typeof response === 'string' ? JSON.parse(response) : response;
+            } catch (e) { var res = response; }
             alert('Berhasil resend ke Moota');
             location.reload();
         },
         error: function(xhr) {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
             try {
                 const res = JSON.parse(xhr.responseText);
                 alert('Error: ' + (res.message || 'Gagal resend ke Moota'));
-            } catch {
+            } catch (e) {
                 alert('Error: Gagal resend ke Moota');
             }
         }
