@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Crypt;
 use Session;
 use DB;
 use App;
@@ -796,12 +797,52 @@ class PosController extends Controller
                     ];
                 }
 
+                // Ensure customer name is present for Moota (fallback to phone or generic label)
+                $custName = trim($dtPos['nama_konsumen'] ?? '');
+                $custPhone = trim($dtPos['no_konsumen'] ?? '');
+                if (!$custName && $custPhone) {
+                    $custName = $custPhone;
+                }
+                if (!$custName) {
+                    $custName = 'Konsumen Umum';
+                }
+
+                // determine account id (prefer selection from request)
+                $selectedAccount = $req->input('account_id') ?? env('MOOTA_ACCOUNT_ID', '');
+
+                // try to resolve account name from Moota accounts if available
+                $accountName = null;
+                try {
+                    $mootaSvc = new \App\Services\MootaService();
+                    $accResp = $mootaSvc->getAccounts();
+                    $accounts = $accResp['accounts'] ?? $accResp['data'] ?? [];
+                    foreach ($accounts as $a) {
+                        $id = $a['id'] ?? $a['account_id'] ?? $a['accountId'] ?? null;
+                        if ($id && $id == $selectedAccount) {
+                            $accountName = $a['name'] ?? ($a['atas_nama'] ?? null);
+                            break;
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    // ignore lookup failure
+                }
+
+                // persist selected bank info into transaction record
+                try {
+                    DB::table('rb_penjualan')->where('id_penjualan', $id)->update([
+                        'moota_bank_account_id' => $selectedAccount,
+                        'moota_bank_account_name' => $accountName
+                    ]);
+                } catch (\Throwable $e) {
+                    \Log::warning('[PosBayar] Failed to save selected bank: '.$e->getMessage());
+                }
+
                 $payload = [
                     'order_id' => $kode_transaksi,
-                    'account_id' => env('MOOTA_ACCOUNT_ID', ''),
+                    'account_id' => $selectedAccount,
                     'customers' => [
-                        'name' => $dtPos['nama_konsumen'] ?? '',
-                        'phone' => $dtPos['no_konsumen'] ?? ''
+                        'name' => $custName,
+                        'phone' => $custPhone
                     ],
                     'items' => $items,
                     'total' => (int) $totalBelanja,
@@ -828,6 +869,23 @@ class PosController extends Controller
                 }
             } catch (\Exception $e) {
                 \Log::warning('[PosBayar] Failed to send to Moota: '.$e->getMessage());
+            }
+
+            // Send WA to customer with encrypted public link to transaction detail
+            try {
+                $phone = $dtPos['no_konsumen'] ?? null;
+                $kode  = $insertMaster['kode_transaksi'];
+                if ($phone) {
+                    $tokenPayload = $id . '|' . $kode . '|' . time();
+                    $token = Crypt::encryptString($tokenPayload);
+                    $link = url('/transaksi/public/' . urlencode($token));
+                    $pesan = "Halo, transaksi Anda (".$kode.") berhasil dibuat. Lihat detail: " . $link;
+                    if (function_exists('kirim_wa')) {
+                        kirim_wa($phone, $pesan);
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('[PosBayar] WA send failed: '.$e->getMessage());
             }
 
             // return success
@@ -907,11 +965,37 @@ class PosController extends Controller
             $totalBelanja += $qty * $price;
         }
 
+        $selectedAccount = $req->input('account_id') ?? $txn->moota_bank_account_id ?? env('MOOTA_ACCOUNT_ID', '');
+        $selectedAccountName = null;
+        try {
+            $mootaSvc = new \App\Services\MootaService();
+            $accResp = $mootaSvc->getAccounts();
+            $accounts = $accResp['accounts'] ?? $accResp['data'] ?? [];
+            foreach ($accounts as $a) {
+                $id = $a['id'] ?? $a['account_id'] ?? $a['accountId'] ?? null;
+                if ($id && $id == $selectedAccount) {
+                    $selectedAccountName = $a['name'] ?? ($a['atas_nama'] ?? null);
+                    break;
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        // persist selected account info before sending
+        try {
+            DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->update([
+                'moota_bank_account_id' => $selectedAccount,
+                'moota_bank_account_name' => $selectedAccountName
+            ]);
+        } catch (\Throwable $e) {}
+
         $payload = [
             'order_id' => $txn->kode_transaksi,
-            'account_id' => $req->input('account_id') ?? env('MOOTA_ACCOUNT_ID', ''),
+            'account_id' => $selectedAccount,
+            // Ensure customers.name is not empty — fallback to phone or generic label
             'customers' => [
-                'name' => $txn->nama_pembeli ?? ($txn->nama_lengkap ?? ''),
+                'name' => (trim($txn->nama_pembeli ?? $txn->nama_lengkap ?? '') ?: trim($txn->no_pembeli ?? $txn->no_hp ?? '') ?: 'Konsumen Umum'),
                 'phone' => $txn->no_pembeli ?? ($txn->no_hp ?? '')
             ],
             'items' => array_map(function($it){
@@ -985,13 +1069,38 @@ class PosController extends Controller
 
         try {
             DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->update([
-                'moota_bank_account_id' => $account_id
+                'moota_bank_account_id' => $account_id,
+                'moota_bank_account_name' => $account_name
             ]);
             return response()->json(['ok' => true, 'message' => 'Pilihan bank disimpan']);
         } catch (\Throwable $e) {
             \Log::error('[SaveMootaBank] '.$e->getMessage());
             return response()->json(['error' => true, 'message' => 'Gagal menyimpan pilihan bank'], 500);
         }
+    }
+
+    public function PublicTransaksi(Request $req, $token)
+    {
+        try {
+            $dec = Crypt::decryptString(urldecode($token));
+            // token format: id|kode|ts
+            $parts = explode('|', $dec);
+            $id_penjualan = $parts[0] ?? null;
+        } catch (\Throwable $e) {
+            $id_penjualan = null;
+        }
+
+        $dt_header = null;
+        $dt_detail = [];
+        if ($id_penjualan) {
+            $dt_header = DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->first();
+            $dt_detail = DB::table('rb_penjualan_detail as d')
+                ->leftJoin('rb_produk as p', 'p.id_produk', 'd.id_produk')
+                ->select('d.*', 'p.nama_produk')
+                ->where('d.id_penjualan', $id_penjualan)->get();
+        }
+
+        return view('transaksi.public_detail', ['dt_header' => $dt_header, 'dt_detail' => $dt_detail]);
     }
 
     public function GetMootaAccounts(Request $req)

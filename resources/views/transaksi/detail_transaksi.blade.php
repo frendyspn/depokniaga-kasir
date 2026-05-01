@@ -120,6 +120,13 @@
     padding: 14px 16px;
     border-top: 2px solid #f0f0f0;
 }
+
+/* Moota bank button styles */
+.moota-bank-list{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start}
+.moota-bank-btn{flex:0 1 160px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:6px; border-radius:8px; border:1px solid #e6e6e6; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.03); transition:transform .12s, box-shadow .12s, border-color .12s}
+.moota-bank-btn img{height:34px; margin-bottom:6px}
+.moota-bank-btn .account-num{font-size:12px; color:#666; margin-top:4px}
+.moota-bank-btn.selected{border-color:#0d6efd; box-shadow:0 6px 18px rgba(13,110,253,0.12); transform:translateY(-2px); background:#f8fbff}
 </style>
 
 <div id="appCapsule" style="background:#f7f8fa; min-height:100vh; padding-bottom:24px">
@@ -296,6 +303,14 @@
             <span class="det-value" style="font-size:12px; word-break:break-all">{{ $dt_header->moota_transaction_id }}</span>
         </div>
         @endif
+        @if(!empty($dt_header->moota_bank_account_name) || !empty($dt_header->moota_bank_account_id))
+        <div class="det-row">
+            <span class="det-label">Bank</span>
+            <span class="det-value" style="text-align:right">
+                {{ $dt_header->moota_bank_account_name ?? $dt_header->moota_bank_account_id ?? '-' }}
+            </span>
+        </div>
+        @endif
         @if($dt_header->moota_status === 'error')
         <div class="det-row" style="border-top:1px solid #f4f4f4; padding-top:12px; margin-bottom:12px">
             <div id="moota_accounts_detail" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px"></div>
@@ -460,18 +475,12 @@ function selectResendBank(bankId, bankName, btnElement) {
     var container = document.getElementById('moota_accounts_container');
     if (container) {
         Array.from(container.children).forEach(function(btn){
-            if (btn.classList) {
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-outline-primary');
-                if (btn.style) btn.style.borderColor = '';
-            }
+            btn.classList && btn.classList.remove('selected');
         });
     }
     
     if (btnElement) {
-        btnElement.classList.remove('btn-outline-primary');
-        btnElement.classList.add('btn-primary');
-        btnElement.style.borderColor = '#0d6efd';
+        btnElement.classList.add('selected');
     }
     
     // Enable confirm button
@@ -591,20 +600,13 @@ function selectDetailBank(bankId, bankName, btnElement, idPenjualan) {
     var container = document.getElementById('moota_accounts_detail');
     if (container) {
         Array.from(container.children).forEach(function(btn){
-            if (btn.classList) {
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-outline-primary');
-                if (btn.style) btn.style.borderColor = '';
-            }
+            btn.classList && btn.classList.remove('selected');
         });
     }
     if (btnElement) {
-        btnElement.classList.remove('btn-outline-primary');
-        btnElement.classList.add('btn-primary');
-        btnElement.style.borderColor = '#0d6efd';
+        btnElement.classList.add('selected');
     }
 
-    // enable resend button on page
     // Persist selection to server before enabling resend
     var btn = document.getElementById('resend-moota-' + idPenjualan);
     fetch('/transaksi/save-moota-bank', {

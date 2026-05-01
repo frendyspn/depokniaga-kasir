@@ -8,6 +8,13 @@ $total_belanja = 0;
     display:none
    }
 }
+/* Moota bank button styles */
+.moota-bank-list{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start}
+.moota-bank-btn{flex:0 1 160px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:6px; border-radius:8px; border:1px solid #e6e6e6; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.03); transition:transform .12s, box-shadow .12s, border-color .12s}
+.moota-bank-btn img{height:34px; margin-bottom:6px}
+.moota-bank-btn .account-num{font-size:12px; color:#666; margin-top:4px}
+.moota-bank-btn.selected{border-color:#0d6efd; box-shadow:0 6px 18px rgba(13,110,253,0.12); transform:translateY(-2px); background:#f8fbff}
+</style>
 </style>
 
 <div style="padding-left:15px">
@@ -212,29 +219,30 @@ $total_belanja = 0;
                 if (list) {
                     list.innerHTML = '';
                     if (accounts && accounts.length > 0) {
+                        // render as card buttons
+                        list.classList.add('moota-bank-list');
                         accounts.forEach(function(a){
                             var id = a.id ?? a.account_id ?? a.accountId;
                             var name = a.name ?? '';
                             var icon = a.icon ?? '';
                             var accountNum = a.account_number ?? '';
-                            
+
                             var btn = document.createElement('button');
                             btn.type = 'button';
-                            btn.className = 'btn btn-outline-primary';
-                            btn.style.cssText = 'flex:1; min-width:150px; padding:15px; display:flex; flex-direction:column; align-items:center; gap:8px; border:2px solid; cursor:pointer; transition:all 0.2s';
+                            btn.className = 'moota-bank-btn';
                             btn.id = 'bank-btn-' + id;
-                            
-                            var iconHtml = icon ? '<img src="' + icon + '" style="height:30px; width:auto">' : '<i class="fas fa-university" style="font-size:24px"></i>';
+
+                            var iconHtml = icon ? '<img src="' + icon + '" alt="icon">' : '<i class="fas fa-university" style="font-size:24px"></i>';
                             var textHtml = '<span style="font-weight:600; font-size:13px; text-align:center">' + name + '</span>';
-                            if (accountNum) textHtml += '<span style="font-size:11px; color:#666">' + accountNum + '</span>';
-                            
+                            if (accountNum) textHtml += '<span class="account-num">' + accountNum + '</span>';
+
                             btn.innerHTML = iconHtml + textHtml;
-                            
+
                             btn.onclick = function(e) {
                                 e.preventDefault();
                                 selectBank(id, name, this);
                             };
-                            
+
                             list.appendChild(btn);
                         });
                     } else {
@@ -260,18 +268,12 @@ $total_belanja = 0;
         var list = document.getElementById('pos_bank_list');
         if (list) {
             Array.from(list.children).forEach(function(btn){
-                if (btn.classList) {
-                    btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-outline-primary');
-                    if (btn.style) btn.style.borderColor = '';
-                }
+                btn.classList && btn.classList.remove('selected');
             });
         }
-        
+
         if (btnElement) {
-            btnElement.classList.remove('btn-outline-primary');
-            btnElement.classList.add('btn-primary');
-            btnElement.style.borderColor = '#0d6efd';
+            btnElement.classList.add('selected');
         }
     }
 
