@@ -123,18 +123,9 @@ $total_belanja = 0;
         </li>
         
         <li>
-            <strong>{{__('bahasa.pembayaran')}}</strong>
-            <span style="margin-left:20px"><input type="number" class="form-control" style="text-align:right" onkeyup="hitung_kembalian($(this).val())" onchange="kembalian_submit($(this).val())" value="{{ $POS['bayar'] }}"></span>
-        </li>
-        <li>
-            <strong>{{__('bahasa.kembalian')}}</strong>
-            <span id="kembalian-tampil" style="font-weight:bold">{{number_format( $POS['bayar'] - ($total_belanja + $POS['pengiriman']['ongkir'] - $POS['diskon']) )}}</span>
-        </li>
-
-        <li>
+            <strong>{{__('bahasa.kupon')}}</strong>
             <div class="form-group basic">
                 <div class="input-wrapper">
-                    <label class="label" for="pos_kupon">{{__('bahasa.kupon')}}</label>
                     <input type="text" class="form-control" id="pos_kupon" name="pos_kupon" value="{{$POS['voucher']['kode_kupon']}}" >
                     <button class="btn btn-sm btn-secondary" onclick="cek_kupon($('#pos_kupon').val())">{{__('bahasa.cek_kupon')}}</button>
                     <div id="tempat_kupon">{{$POS['voucher']['keterangan']}}</div>
