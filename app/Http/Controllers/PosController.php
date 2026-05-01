@@ -968,6 +968,32 @@ class PosController extends Controller
         }
     }
 
+    public function SaveMootaBank(Request $req)
+    {
+        $id_penjualan = $req->input('id_penjualan');
+        $account_id = $req->input('account_id');
+        $account_name = $req->input('account_name', null);
+
+        if (!$id_penjualan || !$account_id) {
+            return response()->json(['error' => true, 'message' => 'Parameter id_penjualan dan account_id diperlukan'], 400);
+        }
+
+        $txn = DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->first();
+        if (!$txn) {
+            return response()->json(['error' => true, 'message' => 'Transaksi tidak ditemukan'], 404);
+        }
+
+        try {
+            DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->update([
+                'moota_bank_account_id' => $account_id
+            ]);
+            return response()->json(['ok' => true, 'message' => 'Pilihan bank disimpan']);
+        } catch (\Throwable $e) {
+            \Log::error('[SaveMootaBank] '.$e->getMessage());
+            return response()->json(['error' => true, 'message' => 'Gagal menyimpan pilihan bank'], 500);
+        }
+    }
+
     public function GetMootaAccounts(Request $req)
     {
         try {

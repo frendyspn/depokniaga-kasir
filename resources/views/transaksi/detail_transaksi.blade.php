@@ -298,7 +298,8 @@
         @endif
         @if($dt_header->moota_status === 'error')
         <div class="det-row" style="border-top:1px solid #f4f4f4; padding-top:12px; margin-bottom:12px">
-            <button id="resend-moota-{{ $dt_header->id_penjualan }}" class="btn btn-sm btn-warning mb-2" style="width:100%" onclick="openResendModal({{ $dt_header->id_penjualan }})">
+            <div id="moota_accounts_detail" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px"></div>
+            <button id="resend-moota-{{ $dt_header->id_penjualan }}" class="btn btn-sm btn-warning mb-2" style="width:100%" onclick="resendMootaConfirm({{ $dt_header->id_penjualan }})" disabled>
                 <i class="fab fa-wordpress-simple"></i> Resend to Moota
             </button>
         </div>
@@ -528,6 +529,118 @@ function resendMoota(idPenjualan, accountId) {
         }
     });
 }
+
+// Load bank buttons directly on detail page (so user selects bank when opening detail)
+function loadBanksForDetail(idPenjualan) {
+    var container = document.getElementById('moota_accounts_detail');
+    if (!container) return;
+    container.innerHTML = '<p style="width:100%; text-align:center; color:#666">Memuat daftar bank...</p>';
+
+    fetch('/api/moota/accounts')
+        .then(res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        })
+        .then(data => {
+            if (data.error) {
+                container.innerHTML = '<p style="width:100%; color:#c62828">Error: ' + (data.message || 'Gagal mengambil akun') + '</p>';
+                return;
+            }
+            var accounts = data.accounts || data.data || [];
+            container.innerHTML = '';
+            if (!accounts || accounts.length === 0) {
+                container.innerHTML = '<p style="width:100%; text-align:center; color:#666">Tidak ada akun bank tersedia</p>';
+                return;
+            }
+            accounts.forEach(function(a){
+                var id = a.id ?? a.account_id ?? a.accountId ?? a.code ?? a['account_id'] ?? a['id'];
+                var name = a.name ?? a.bank_name ?? a.account_name ?? 'Bank';
+                var icon = a.icon ?? '';
+                var accountNum = a.account_number ?? '';
+
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-outline-primary';
+                btn.style.cssText = 'flex:0 1 150px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:6px; border:2px solid; cursor:pointer; transition:all 0.15s;';
+                btn.id = 'detail-bank-btn-' + id;
+
+                var iconHtml = icon ? '<img src="' + icon + '" style="height:28px; width:auto">' : '<i class="fas fa-university" style="font-size:22px"></i>';
+                var textHtml = '<span style="font-weight:600; font-size:13px; text-align:center">' + name + '</span>';
+                if (accountNum) textHtml += '<span style="font-size:11px; color:#666">' + accountNum + '</span>';
+                btn.innerHTML = iconHtml + textHtml;
+
+                btn.onclick = function(e){
+                    e.preventDefault();
+                    selectDetailBank(id, name, this, idPenjualan);
+                };
+
+                container.appendChild(btn);
+            });
+        })
+        .catch(err => {
+            console.error('[loadBanksForDetail] Fetch error:', err);
+            container.innerHTML = '<p style="width:100%; color:#c62828">Error: Gagal mengambil akun</p>';
+        });
+}
+
+function selectDetailBank(bankId, bankName, btnElement, idPenjualan) {
+    // reuse global selected var
+    resend_selected_bank_id = bankId;
+    resend_selected_bank_name = bankName;
+
+    var container = document.getElementById('moota_accounts_detail');
+    if (container) {
+        Array.from(container.children).forEach(function(btn){
+            if (btn.classList) {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+                if (btn.style) btn.style.borderColor = '';
+            }
+        });
+    }
+    if (btnElement) {
+        btnElement.classList.remove('btn-outline-primary');
+        btnElement.classList.add('btn-primary');
+        btnElement.style.borderColor = '#0d6efd';
+    }
+
+    // enable resend button on page
+    // Persist selection to server before enabling resend
+    var btn = document.getElementById('resend-moota-' + idPenjualan);
+    fetch('/transaksi/save-moota-bank', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ id_penjualan: idPenjualan, account_id: bankId, account_name: bankName })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data && (data.ok || data.success)) {
+            if (btn) btn.disabled = false;
+        } else {
+            alert('Gagal menyimpan pilihan bank');
+            if (btn) btn.disabled = true;
+        }
+    })
+    .catch(err => {
+        console.error('[selectDetailBank] Save bank error:', err);
+        alert('Gagal menyimpan pilihan bank');
+        if (btn) btn.disabled = true;
+    });
+}
+
+// Auto-load banks when opening detail if transaction not paid
+document.addEventListener('DOMContentLoaded', function(){
+    try {
+        var mootaStatus = '{{ $dt_header->moota_status ?? '' }}';
+        var idPenjualan = '{{ $dt_header->id_penjualan ?? '' }}';
+        if (idPenjualan && mootaStatus !== 'success') {
+            loadBanksForDetail(idPenjualan);
+        }
+    } catch(e){}
+});
 </script>
 
 @endsection
