@@ -122,11 +122,13 @@
 }
 
 /* Moota bank button styles */
-.moota-bank-list{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start}
-.moota-bank-btn{flex:0 1 160px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:6px; border-radius:8px; border:1px solid #e6e6e6; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.03); transition:transform .12s, box-shadow .12s, border-color .12s}
-.moota-bank-btn img{height:34px; margin-bottom:6px}
-.moota-bank-btn .account-num{font-size:12px; color:#666; margin-top:4px}
-.moota-bank-btn.selected{border-color:#0d6efd; box-shadow:0 6px 18px rgba(13,110,253,0.12); transform:translateY(-2px); background:#f8fbff}
+.moota-bank-list{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; align-items:start}
+.moota-bank-btn{padding:14px; display:flex; flex-direction:column; align-items:center; gap:8px; border-radius:10px; border:1px solid #e9eef8; background:#ffffff; box-shadow:0 2px 6px rgba(15,23,42,0.04); transition:transform .12s, box-shadow .12s, border-color .12s; text-align:center}
+.moota-bank-btn img{height:36px; width:auto; display:block}
+.moota-bank-btn .bank-name{font-weight:700; font-size:13px; color:#10375c}
+.moota-bank-btn .account-num{font-size:12px; color:#6b7280}
+.moota-bank-btn:hover{transform:translateY(-4px); box-shadow:0 10px 30px rgba(16,55,92,0.08)}
+.moota-bank-btn.selected{border-color:#0d6efd; box-shadow:0 10px 30px rgba(13,110,253,0.12); transform:translateY(-6px); background:linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)}
 </style>
 
 <div id="appCapsule" style="background:#f7f8fa; min-height:100vh; padding-bottom:24px">
@@ -544,23 +546,18 @@ function loadBanksForDetail(idPenjualan) {
     var container = document.getElementById('moota_accounts_detail');
     if (!container) return;
     container.innerHTML = '<p style="width:100%; text-align:center; color:#666">Memuat daftar bank...</p>';
-
     fetch('/api/moota/accounts')
-        .then(res => {
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            return res.json();
-        })
+        .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
         .then(data => {
-            if (data.error) {
-                container.innerHTML = '<p style="width:100%; color:#c62828">Error: ' + (data.message || 'Gagal mengambil akun') + '</p>';
-                return;
-            }
+            if (data.error) { container.innerHTML = '<p style="width:100%; color:#c62828">Error: ' + (data.message || 'Gagal mengambil akun') + '</p>'; return; }
+
             var accounts = data.accounts || data.data || [];
             container.innerHTML = '';
-            if (!accounts || accounts.length === 0) {
-                container.innerHTML = '<p style="width:100%; text-align:center; color:#666">Tidak ada akun bank tersedia</p>';
-                return;
-            }
+            container.classList.add('moota-bank-list');
+            if (!accounts || accounts.length === 0) { container.innerHTML = '<p style="width:100%; text-align:center; color:#666">Tidak ada akun bank tersedia</p>'; return; }
+
+            var savedAccount = {!! json_encode($dt_header->moota_bank_account_id ?? '') !!};
+
             accounts.forEach(function(a){
                 var id = a.id ?? a.account_id ?? a.accountId ?? a.code ?? a['account_id'] ?? a['id'];
                 var name = a.name ?? a.bank_name ?? a.account_name ?? 'Bank';
@@ -568,28 +565,21 @@ function loadBanksForDetail(idPenjualan) {
                 var accountNum = a.account_number ?? '';
 
                 var btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'btn btn-outline-primary';
-                btn.style.cssText = 'flex:0 1 150px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:6px; border:2px solid; cursor:pointer; transition:all 0.15s;';
-                btn.id = 'detail-bank-btn-' + id;
+                btn.type = 'button'; btn.className = 'moota-bank-btn'; btn.id = 'detail-bank-btn-' + id;
 
-                var iconHtml = icon ? '<img src="' + icon + '" style="height:28px; width:auto">' : '<i class="fas fa-university" style="font-size:22px"></i>';
-                var textHtml = '<span style="font-weight:600; font-size:13px; text-align:center">' + name + '</span>';
-                if (accountNum) textHtml += '<span style="font-size:11px; color:#666">' + accountNum + '</span>';
-                btn.innerHTML = iconHtml + textHtml;
+                var parts = [];
+                parts.push(icon ? '<img src="'+icon+'" alt="'+name+'">' : '<i class="fas fa-university" style="font-size:28px;color:#6b7280"></i>');
+                parts.push('<div class="bank-name">'+name+'</div>');
+                if (accountNum) parts.push('<div class="account-num">'+accountNum+'</div>');
+                btn.innerHTML = parts.join('');
 
-                btn.onclick = function(e){
-                    e.preventDefault();
-                    selectDetailBank(id, name, this, idPenjualan);
-                };
-
+                btn.onclick = function(e){ e.preventDefault(); selectDetailBank(id, name, this, idPenjualan); };
                 container.appendChild(btn);
+
+                if (savedAccount && String(savedAccount) === String(id)) { setTimeout(function(){ selectDetailBank(id, name, btn, idPenjualan); }, 50); }
             });
         })
-        .catch(err => {
-            console.error('[loadBanksForDetail] Fetch error:', err);
-            container.innerHTML = '<p style="width:100%; color:#c62828">Error: Gagal mengambil akun</p>';
-        });
+        .catch(err => { console.error('[loadBanksForDetail] Fetch error:', err); container.innerHTML = '<p style="width:100%; color:#c62828">Error: Gagal mengambil akun</p>'; });
 }
 
 function selectDetailBank(bankId, bankName, btnElement, idPenjualan) {

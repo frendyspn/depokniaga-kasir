@@ -1074,8 +1074,17 @@ class PosController extends Controller
             ]);
             return response()->json(['ok' => true, 'message' => 'Pilihan bank disimpan']);
         } catch (\Throwable $e) {
-            \Log::error('[SaveMootaBank] '.$e->getMessage());
-            return response()->json(['error' => true, 'message' => 'Gagal menyimpan pilihan bank'], 500);
+            \Log::error('[SaveMootaBank] primary update failed: '.$e->getMessage());
+            // Fallback: try to update only the account id (in case new column doesn't exist)
+            try {
+                DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->update([
+                    'moota_bank_account_id' => $account_id
+                ]);
+                return response()->json(['ok' => true, 'message' => 'Pilihan bank disimpan (fallback)']);
+            } catch (\Throwable $e2) {
+                \Log::error('[SaveMootaBank] fallback update failed: '.$e2->getMessage());
+                return response()->json(['error' => true, 'message' => 'Gagal menyimpan pilihan bank', 'detail' => $e2->getMessage()], 500);
+            }
         }
     }
 
