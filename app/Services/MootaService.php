@@ -91,17 +91,35 @@ class MootaService
                 $attempts[] = ['url' => $url, 'status' => $response->status(), 'body' => $body];
 
                 if ($response->successful()) {
-                    // try to extract accounts from common response paths
+                    // Extract accounts data from common response paths
+                    $rawAccounts = [];
                     if (isset($body['data']) && is_array($body['data'])) {
-                        return ['error' => false, 'accounts' => $body['data'], 'attempts' => $attempts];
+                        $rawAccounts = $body['data'];
+                    } elseif (isset($body['accounts']) && is_array($body['accounts'])) {
+                        $rawAccounts = $body['accounts'];
+                    } elseif (is_array($body) && count($body) > 0) {
+                        $rawAccounts = $body;
                     }
-                    if (isset($body['accounts']) && is_array($body['accounts'])) {
-                        return ['error' => false, 'accounts' => $body['accounts'], 'attempts' => $attempts];
+
+                    // Normalize Moota account fields to standard format
+                    $normalizedAccounts = array_map(function($acc) {
+                        return [
+                            'id' => $acc['bank_id'] ?? $acc['id'] ?? $acc['account_id'] ?? $acc['code'] ?? null,
+                            'name' => $acc['atas_nama'] ?? $acc['name'] ?? $acc['bank_name'] ?? $acc['account_name'] ?? null,
+                            'account_number' => $acc['account_number'] ?? null,
+                            'bank_type' => $acc['bank_type'] ?? null,
+                            'balance' => $acc['balance'] ?? null,
+                            'icon' => $acc['icon'] ?? null,
+                            // Keep original for reference
+                            '_raw' => $acc
+                        ];
+                    }, $rawAccounts);
+
+                    if (count($normalizedAccounts) > 0) {
+                        return ['error' => false, 'accounts' => $normalizedAccounts, 'attempts' => $attempts];
+                    } else {
+                        return ['error' => false, 'accounts' => [], 'attempts' => $attempts];
                     }
-                    if (is_array($body) && count($body) > 0) {
-                        return ['error' => false, 'accounts' => $body, 'attempts' => $attempts];
-                    }
-                    return ['error' => false, 'accounts' => [], 'attempts' => $attempts];
                 }
 
                 // if 404 continue to next endpoint
