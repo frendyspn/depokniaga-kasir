@@ -70,8 +70,7 @@ Route::post('/pos_simpan_kordinat', [PosController::class, 'SimpanKordinat'])->n
 Route::post('/pos_scan_barcode', [PosController::class, 'ScanBarcode'])->name('pos_scan_barcode');
 Route::post('/pos_list_barang', [PosController::class, 'ViewListBarang'])->name('pos_list_barang');
 
-// Moota webhook endpoint
-Route::post('/webhook/moota', [PosController::class, 'MootaWebhook'])->name('webhook_moota');
+// Moota webhook endpoint moved to API routes (/api/webhook/moota)
 
 Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi');
 Route::get('/transaksi_lihat_semua', [TransaksiController::class, 'semuaTransaksi'])->name('transaksi_lihat_semua');
