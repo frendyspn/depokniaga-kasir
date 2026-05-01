@@ -27,9 +27,7 @@ class MootaService
 
         // Try primary endpoint and a few fallbacks if provider returns 404
         $endpoints = [
-            '/mutations/create-transaction',
-            '/mutations/create-transaction/create',
-            '/transactions/create'
+            '/create-transaction'
         ];
 
         $attempts = [];
