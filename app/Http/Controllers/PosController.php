@@ -810,12 +810,14 @@ class PosController extends Controller
                     $moota_id = $res['body']['data']['id'] ?? null;
                     DB::table('rb_penjualan')->where('id_penjualan', $id)->update([
                         'moota_transaction_id' => $moota_id,
-                        'moota_payload' => json_encode($res['body'])
+                        'moota_payload' => json_encode($res['body']),
+                        'moota_status' => 'success'
                     ]);
                 } else {
                     // simpan payload error di kolom moota_payload untuk debugging
                     DB::table('rb_penjualan')->where('id_penjualan', $id)->update([
-                        'moota_payload' => json_encode($res)
+                        'moota_payload' => json_encode($res),
+                        'moota_status' => 'error'
                     ]);
                 }
             } catch (\Exception $e) {
@@ -858,7 +860,81 @@ class PosController extends Controller
         return redirect('/pos');
     }
 
+    public function ResendMoota(Request $req)
+    {
+        $id_penjualan = $req->input('id_penjualan');
 
+        if (!$id_penjualan) {
+            http_response_code(400);
+            return json_encode(['error' => true, 'message' => 'ID penjualan diperlukan']);
+        }
+
+        $txn = DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->first();
+        if (!$txn) {
+            http_response_code(404);
+            return json_encode(['error' => true, 'message' => 'Transaksi tidak ditemukan']);
+        }
+
+        // Ambil detail produk
+        $dtKeranjang = DB::table('rb_penjualan_detail as pd')
+            ->select('pd.id_produk', 'pd.qty', 'pd.harga', 'p.nama_produk')
+            ->leftJoin('rb_produk as p', 'p.id_produk', 'pd.id_produk')
+            ->where('pd.id_penjualan', $id_penjualan)
+            ->get();
+
+        if ($dtKeranjang->isEmpty()) {
+            http_response_code(400);
+            return json_encode(['error' => true, 'message' => 'Detail produk tidak ditemukan']);
+        }
+
+        // Siapkan items untuk Moota
+        $items = [];
+        $totalBelanja = 0;
+        foreach ($dtKeranjang as $item) {
+            $items[] = [
+                'name' => $item->nama_produk,
+                'quantity' => $item->qty,
+                'price' => (int) $item->harga
+            ];
+            $totalBelanja += $item->qty * $item->harga;
+        }
+
+        $payload = [
+            'order_id' => $txn->kode_transaksi,
+            'account_id' => env('MOOTA_ACCOUNT_ID', ''),
+            'customers' => json_encode(['name' => $txn->nama_pembeli ?? '', 'phone' => $txn->no_pembeli ?? '']),
+            'items' => $items,
+            'total' => (int) $totalBelanja,
+            'expired_in_minutes' => 60
+        ];
+
+        try {
+            $moota = new \App\Services\MootaService();
+            $res = $moota->createTransaction($payload);
+
+            if (isset($res['error']) && !$res['error'] && isset($res['body']['data'])) {
+                $moota_id = $res['body']['data']['id'] ?? null;
+                DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->update([
+                    'moota_transaction_id' => $moota_id,
+                    'moota_payload' => json_encode($res['body']),
+                    'moota_status' => 'success'
+                ]);
+                http_response_code(200);
+                return json_encode(['error' => false, 'message' => 'Berhasil resend ke Moota', 'moota_id' => $moota_id]);
+            } else {
+                DB::table('rb_penjualan')->where('id_penjualan', $id_penjualan)->update([
+                    'moota_payload' => json_encode($res),
+                    'moota_status' => 'error'
+                ]);
+                http_response_code(400);
+                return json_encode(['error' => true, 'message' => 'Gagal resend ke Moota', 'response' => $res]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('[ResendMoota] Exception: '.$e->getMessage());
+            http_response_code(500);
+            return json_encode(['error' => true, 'message' => 'Exception: '.$e->getMessage()]);
+        }
+    }
 
     private function hitungJarak(string $kordinat1, string $kordinat2): float
     {

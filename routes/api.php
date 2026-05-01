@@ -21,3 +21,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Moota webhook (stateless)
 Route::post('/webhook/moota', [PosController::class, 'MootaWebhook']);
+
+// Resend to Moota
+Route::post('/resend-moota', [PosController::class, 'ResendMoota']);
