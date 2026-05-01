@@ -25,7 +25,7 @@ class MootaService
             return ['error' => true, 'message' => 'MOOTA_API_TOKEN not configured'];
         }
 
-        $url = rtrim($this->baseUrl, '/') . '/mutations/create-transaction/create-transaction';
+        $url = rtrim($this->baseUrl, '/') . '/mutations/create-transaction';
 
         try {
             $response = Http::withToken($this->token)
