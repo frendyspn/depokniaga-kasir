@@ -790,9 +790,48 @@ class PosController extends Controller
             }
             
             DB::commit();
-            // DB::rollback();
 
-            // return $cekinsert;
+            // KIRIM KE MOOTA (opsional) - bangun payload sederhana
+            try {
+                $kode_transaksi = $insertMaster['kode_transaksi'];
+                $items = [];
+                for ($k = 0; $k < count($dtKeranjang); $k++) {
+                    $items[] = [
+                        'name' => $dtKeranjang[$k]['nama_produk'],
+                        'price' => (int) $dtKeranjang[$k]['harga_konsumen'] * (int) $dtKeranjang[$k]['qty']
+                    ];
+                }
+
+                $payload = [
+                    'order_id' => $kode_transaksi,
+                    'account_id' => env('MOOTA_ACCOUNT_ID', ''),
+                    'customers' => json_encode(['name' => $dtPos['nama_konsumen'] ?? '', 'phone' => $dtPos['no_konsumen'] ?? '']),
+                    'items' => $items,
+                    'total' => (int) $totalBelanja,
+                    'expired_in_minutes' => 60
+                ];
+
+                $moota = new \App\Services\MootaService();
+                $res = $moota->createTransaction($payload);
+
+                if (isset($res['error']) && !$res['error'] && isset($res['body']['data'])) {
+                    // contoh path; sesuaikan jika response berbeda
+                    $moota_id = $res['body']['data']['id'] ?? null;
+                    DB::table('rb_penjualan')->where('id_penjualan', $id)->update([
+                        'moota_transaction_id' => $moota_id,
+                        'moota_payload' => json_encode($res['body'])
+                    ]);
+                } else {
+                    // simpan payload error di kolom moota_payload untuk debugging
+                    DB::table('rb_penjualan')->where('id_penjualan', $id)->update([
+                        'moota_payload' => json_encode($res)
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Log::warning('[PosBayar] Failed to send to Moota: '.$e->getMessage());
+            }
+
+            // return success
             exit(json_encode(['Message' => 'Transaksi Sukses']));
         } catch (\Exception $e) {
             DB::rollback();
@@ -982,5 +1021,82 @@ class PosController extends Controller
             ->get(api_url().'api/notification/new_order/'.$id_penjualan);
 
         return $id;
+    }
+
+    /**
+     * Handle incoming webhook from Moota
+     */
+    public function MootaWebhook(Request $req)
+    {
+        App::setLocale(session()->get('locale'));
+
+        $payload = $req->all();
+        \Log::info('[MootaWebhook] Received payload', $payload);
+
+        // Store raw webhook payload for auditing
+        try {
+            DB::table('moota_webhook_logs')->insert([
+                'kode_transaksi' => null,
+                'moota_transaction_id' => $payload['data']['id'] ?? $payload['id'] ?? null,
+                'status' => $payload['data']['status'] ?? $payload['status'] ?? null,
+                'payload' => json_encode($payload),
+                'headers' => json_encode($req->headers->all()),
+                'ip' => $req->ip(),
+                'received_at' => date('Y-m-d H:i:s'),
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        } catch (\Exception $e) {
+            \Log::warning('[MootaWebhook] Failed to insert webhook log: '.$e->getMessage());
+        }
+
+        // Try to extract reference kode_transaksi from common fields
+        $kode = null;
+        if (isset($payload['data']['order_id'])) $kode = $payload['data']['order_id'];
+        if (!$kode && isset($payload['order_id'])) $kode = $payload['order_id'];
+        if (!$kode && isset($payload['data']['reference'])) $kode = $payload['data']['reference'];
+        if (!$kode && isset($payload['reference'])) $kode = $payload['reference'];
+
+        if (!$kode) {
+            \Log::warning('[MootaWebhook] No reference/order_id found in payload');
+            return response()->json(['error' => true, 'message' => 'No reference/order_id'], 400);
+        }
+
+        $penjualan = DB::table('rb_penjualan')->where('kode_transaksi', $kode)->first();
+        if (!$penjualan) {
+            \Log::warning('[MootaWebhook] Transaction not found', ['kode' => $kode]);
+            return response()->json(['error' => true, 'message' => 'Transaction not found'], 404);
+        }
+
+        // Map fields from payload
+        $moota_id = $payload['data']['id'] ?? $payload['id'] ?? null;
+        $moota_account = $payload['data']['account_id'] ?? $payload['account_id'] ?? null;
+        $moota_status = $payload['data']['status'] ?? $payload['status'] ?? null;
+        $moota_paid_at = $payload['data']['paid_at'] ?? $payload['paid_at'] ?? null;
+
+        $update = [
+            'moota_transaction_id' => $moota_id,
+            'moota_bank_account_id' => $moota_account,
+            'moota_status' => $moota_status,
+            'moota_payload' => json_encode($payload),
+        ];
+
+        if ($moota_paid_at) {
+            $dt = date('Y-m-d H:i:s', strtotime($moota_paid_at));
+            $update['moota_paid_at'] = $dt;
+        }
+
+        // Determine if status is paid-ish
+        $paidStatuses = ['paid','success','settlement','PAID','SUCCESS'];
+        if ($moota_status && in_array(strtolower($moota_status), array_map('strtolower', $paidStatuses))) {
+            $update['proses'] = '1';
+            $update['status_pembayaran'] = 'PAID';
+        }
+
+        DB::table('rb_penjualan')->where('id_penjualan', $penjualan->id_penjualan)->update($update);
+
+        \Log::info('[MootaWebhook] Updated transaction', ['id_penjualan' => $penjualan->id_penjualan, 'update' => $update]);
+
+        return response()->json(['ok' => true]);
     }
 }
