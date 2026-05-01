@@ -1033,9 +1033,10 @@ class PosController extends Controller
         $payload = $req->all();
         \Log::info('[MootaWebhook] Received payload', $payload);
 
-        // Store raw webhook payload for auditing
+        // Store raw webhook payload for auditing and keep its id so we can update it later
+        $logId = null;
         try {
-            DB::table('moota_webhook_logs')->insert([
+            $logId = DB::table('moota_webhook_logs')->insertGetId([
                 'kode_transaksi' => null,
                 'moota_transaction_id' => $payload['data']['id'] ?? $payload['id'] ?? null,
                 'status' => $payload['data']['status'] ?? $payload['status'] ?? null,
@@ -1057,15 +1058,25 @@ class PosController extends Controller
         if (!$kode && isset($payload['data']['reference'])) $kode = $payload['data']['reference'];
         if (!$kode && isset($payload['reference'])) $kode = $payload['reference'];
 
-        if (!$kode) {
-            \Log::warning('[MootaWebhook] No reference/order_id found in payload');
-            return response()->json(['error' => true, 'message' => 'No reference/order_id'], 400);
-        }
+        // If no kode/order_id present, try to match by moota transaction id
+        $moota_id = $payload['data']['id'] ?? $payload['id'] ?? null;
 
-        $penjualan = DB::table('rb_penjualan')->where('kode_transaksi', $kode)->first();
+        if (!$kode && $moota_id) {
+            $penjualan = DB::table('rb_penjualan')->where('moota_transaction_id', $moota_id)->first();
+            if ($penjualan) {
+                $kode = $penjualan->kode_transaksi;
+            }
+        } else {
+            $penjualan = $kode ? DB::table('rb_penjualan')->where('kode_transaksi', $kode)->first() : null;
+        }
         if (!$penjualan) {
-            \Log::warning('[MootaWebhook] Transaction not found', ['kode' => $kode]);
-            return response()->json(['error' => true, 'message' => 'Transaction not found'], 404);
+            \Log::warning('[MootaWebhook] Transaction not found', ['kode' => $kode, 'moota_id' => $moota_id]);
+            // Update log with any info we have
+            if ($logId && $moota_id) {
+                try { DB::table('moota_webhook_logs')->where('id', $logId)->update(['moota_transaction_id' => $moota_id]); } catch (\Exception $e) {}
+            }
+            // Return 200 to acknowledge receipt but indicate no matching transaction found
+            return response()->json(['ok' => true, 'message' => 'No matching transaction found; webhook logged'], 200);
         }
 
         // Map fields from payload
@@ -1094,6 +1105,11 @@ class PosController extends Controller
         }
 
         DB::table('rb_penjualan')->where('id_penjualan', $penjualan->id_penjualan)->update($update);
+
+        // Update webhook log to reference kode_transaksi if we inserted earlier
+        if ($logId) {
+            try { DB::table('moota_webhook_logs')->where('id', $logId)->update(['kode_transaksi' => $penjualan->kode_transaksi]); } catch (\Exception $e) {}
+        }
 
         \Log::info('[MootaWebhook] Updated transaction', ['id_penjualan' => $penjualan->id_penjualan, 'update' => $update]);
 
